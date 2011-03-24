@@ -1,0 +1,47 @@
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+version = '0.1'
+
+repositories {
+    mavenCentral()
+    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+        name = "GitHub"
+    	addArtifactPattern 'http://cloud.github.com/downloads/glaforge/[organisation]/[module]-[revision].[ext]'
+    }
+}
+
+dependencies {
+    groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['**/groovy-all-*.jar'])
+    compile gradleApi()
+    compile group: 'gaelyk', name: 'gaelyk', version: '0.6.1'
+    testCompile "junit:junit:4.+"
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Gaelyk plugin',
+                   'Implementation-Version': version,
+                   'Built-By': System.getProperty("user.name"),
+                   'Built-Date': new Date(),
+                   'Built-JDK': System.getProperty("java.version")
+    }
+}
+
+ideaProject {
+    javaVersion = '1.6'
+  
+    withXml { provider ->
+        def node = provider.asNode()
+
+        // Use GIT
+        def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
+        vcsConfig.mapping[0].'@vcs' = 'Git'
+
+        // Set Gradle home
+        def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
+        gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
+    }
+}
