@@ -114,12 +114,21 @@ class PluginManager {
 	}
 	
 	private filesToDelete(origin){
-		def installedBy = history.plugin.find{it.@origin == origin}.file*.@name*.text()
+		def installedBy = getHistoryPlugin(origin).file*.@name*.text()
 		def byOthers = []
-		history.plugin.findAll{it.@origin != origin}.each{
+		history.plugin.findAll{it.@origin != origin && it.@name != origin }.each{
 			 byOthers << it.file.@name.text()
 		}
 		installedBy - byOthers
+	}
+	
+	private getHistoryPlugin(origin){
+		history.plugin.find{it.@origin == origin || it.@name == origin }
+	}
+	
+	private removeHistoryRecord(origin){
+		getHistoryPlugin(origin).replaceNode{}
+		writeHistory history
 	}
 
 }

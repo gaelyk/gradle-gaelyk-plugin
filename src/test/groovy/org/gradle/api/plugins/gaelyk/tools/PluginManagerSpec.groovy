@@ -62,11 +62,16 @@ class PluginManagerSpec extends Specification {
 	def "Don't uninstall files somebody other installed"(){
 		setup:
 		def manager = new PluginManager("src/test/resources")
+		
 		when:
-		def tbd = manager.filesToDelete("git://example.com/plugin1.git")
+		def tbd = manager.filesToDelete(what)
+		
 		then:
 		tbd
 		tbd.size() == 1
 		tbd[0] == "test"
+		
+		where:
+		what << ["git://example.com/plugin1.git", "plugin1"]
 	}
 }
