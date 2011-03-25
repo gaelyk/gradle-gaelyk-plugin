@@ -1,0 +1,3 @@
+excludes = ["README.TXT"]
+includes = [".test"]
+version = "2.0"

@@ -23,6 +23,7 @@ package org.gradle.api.plugins.gaelyk
 class GaelykPluginConvention {
     def gaelyk(Closure closure) {
         closure.delegate = this
+		closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
     }
 }
