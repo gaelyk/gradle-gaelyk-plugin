@@ -15,15 +15,24 @@
  */
 package org.gradle.api.plugins.gaelyk
 
+import org.gradle.api.plugins.gaelyk.tools.PluginManager
+
 /**
  * Defines Gaelyk plugin convention.
  *
  * @author Benjamin Muschko
  */
 class GaelykPluginConvention {
-    def gaelyk(Closure closure) {
+    private currentPlugins = []
+	
+	def gaelyk(Closure closure) {
         closure.delegate = this
 		closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
+		new PluginManager().manage(currentPlugins)
     }
+	
+	def apply(plugin){
+		currentPlugins << plugin
+	}
 }

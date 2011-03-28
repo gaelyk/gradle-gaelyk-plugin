@@ -5,6 +5,8 @@ import groovy.xml.XmlUtil;
 
 import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
 
+import org.eclipse.jgit.pgm.Main
+
 class PluginManager {
 
 	static final String GAELYKHISTORY = ".gaelykhistory"
@@ -13,47 +15,91 @@ class PluginManager {
 	
 	final File projectRoot
 	
-	PluginManager(projectRoot){
+	PluginManager(projectRoot = "."){
 		this.projectRoot = projectRoot as File
 	}
 	
-	def install(plugin){
-		if (plugin.archive) {
-			installFromZip plugin.archive as File
+	def manage(current){
+		def installed = []
+		installed.addAll(installedPlugins)
+		current.each{
+			def origin = it.archive ?: it.git ?: it.url
+			assert origin, "Use archive, git or url to specify the plugin origin"
+			if(origin in installed){
+				println "Plugin $origin already installed."
+				installed.remove(origin)
+			} else {
+				println "Plugin $origin is not installed yet. I'm installing it now."
+				install it
+			}
+		}
+		installed.each {
+			println "Plugin $it was removed. I'm removing it now."
+			removePlugin it
 		}
 	}
 	
-	private installFromZip(File zip){
+	private install(plugin){
+		if (plugin.archive) {
+			installFromZip plugin.archive as File
+		} else if(plugin.git){
+			installFromGit plugin.git
+		} else if(plugin.url){
+			installFromUrl plugin.url
+		}
+	}
+	
+	private installFromUrl(url){
+		File tmp = File.createTempFile("gaelyk-plugin-download-" + new Random().nextInt(), ".zip")
+		new AntBuilder().get(src: url, dest: tmp.path)
+		installFromZip tmp, url
+	}
+	
+	private installFromGit(git){
+		TempDir.withTempDir 'gaelyk-git-temp', { 
+			Main.main(["clone", git, it.path] as String[])
+			installFromDir(it, git as String)
+		}
+	}
+	
+	private installFromZip(File zip, origin = zip.path){
 		TempDir.withTempDir 'gaelyk-unzipped-plugin', { tmp ->
 			new AntBuilder().unzip src: zip.path, dest: tmp.path
 			
-			def props = readPluginDescriptor(tmp.path)
+			installFromDir(tmp, origin)
+
+		}
+	}
+	
+	private installFromDir(tmp, origin = tmp){
+		def props = readPluginDescriptor(tmp.path)
+		
+		TempDir.withTempDir 'gaelyk-plugin-stage', { stage ->
 			
-			TempDir.withTempDir 'gaelyk-plugin-stage', { stage ->
-				
-				new AntBuilder().copy(todir: stage.path){
-					fileset(dir: tmp.path){
-						exclude(name: "*build.*")
-						exclude(name: ".**")
-						exclude(name: "**/.*/**")
-						for(ex in props.excludes){
-							exclude(name: ex)
-						}
+			new AntBuilder().copy(todir: stage.path){
+				fileset(dir: tmp.path){
+					exclude(name: "*build.*")
+					exclude(name: ".**")
+					exclude(name: "**/.*/**")
+					for(ex in props.excludes){
+						exclude(name: ex)
 					}
+				}
+				if(props.includes){
 					fileset(dir: tmp.path){
 						for(ex in props.includes){
 							include(name: ex)
 						}
-					}
+					}					
 				}
-				
-				addHistory(stage, zip.path)
-				
-				new AntBuilder().copy(todir: projectRoot.path){
-					fileset(dir: stage.path)
-				}
-		    }
-
+			}
+			
+			addHistory(stage, origin)
+			installPlugins(stage)
+			
+			new AntBuilder().copy(todir: projectRoot.path){
+				fileset(dir: stage.path)
+			}
 		}
 	}
 	
@@ -122,13 +168,58 @@ class PluginManager {
 		installedBy - byOthers
 	}
 	
-	private getHistoryPlugin(origin){
-		history.plugin.find{it.@origin == origin || it.@name == origin }
+	private getHistoryPlugin(origin, theHistory = history){
+		theHistory.plugin.find{it.@origin == origin || it.@name == origin }
 	}
 	
 	private removeHistoryRecord(origin){
-		getHistoryPlugin(origin).replaceNode{}
+		def history = history
+		getHistoryPlugin(origin, history).replaceNode{}
 		writeHistory history
 	}
+	
+	private installPlugins(origin){
+		def pluginsDir = new File(origin as File, "/war/WEB-INF/plugins")
+		if (pluginsDir.exists()) {
+			def plugins = new File("$projectRoot.path/war/WEB-INF/plugins.groovy")
+			if(!plugins.exists()){
+				new AntBuilder().sequential{ mkdir(dir: "$projectRoot.path/war/WEB-INF") }
+				assert plugins.createNewFile()
+			}
+			pluginsDir.list().each {
+				def pluginName = it - ".groovy"
+				if(!plugins.readLines().grep(~/\s*install\s+$pluginName\s*/))
+				plugins.append("\ninstall $pluginName\n")
+			}
+		}
+	}
+	
+	private removePlugin(origin){
+		filesToDelete(origin).each{
+			def theFile = new File(projectRoot, it)
+			if(it =~ "war/WEB-INF/plugins/\\w+.groovy") {
+				def name = theFile.name - ".groovy"
+				def plugins = new File(projectRoot, "war/WEB-INF/plugins.groovy")
+				if(plugins.exists()){
+					if(plugins.readLines().grep(~/\s*install\s+$name\s*/)){
+						plugins.text = plugins.text.replaceAll(/\s*install\s+$name\s*/, "")
+					}
+					
+					if(!plugins.text.trim()){
+						plugins.delete()
+					}
+				}
+			}
+			if(theFile.exists()){
+				theFile.deleteOnExit()
+			}
+		}
+		removeHistoryRecord origin
+	}
+	
+	private getInstalledPlugins(){
+		history.plugin.@origin*.text()
+	}
+	
 
 }

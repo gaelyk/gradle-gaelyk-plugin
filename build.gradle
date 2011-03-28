@@ -12,6 +12,7 @@ codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
+	mavenCentral name:'jgit-repository', urls:'http://download.eclipse.org/jgit/maven'
 	mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
     add(new org.apache.ivy.plugins.resolver.URLResolver()) {
         name = "GitHub"
@@ -24,6 +25,12 @@ dependencies {
     
 	compile gradleApi()
     compile group: 'gaelyk', name: 'gaelyk', version: '0.6.1'
+	
+	compile 'org.eclipse.jgit:org.eclipse.jgit:0.10.1'
+	compile 'org.eclipse.jgit:org.eclipse.jgit.ui:0.10.1'
+	compile 'com.jcraft:jsch:0.1.44-1'
+	compile 'org.eclipse.jgit:org.eclipse.jgit.pgm:0.10.1'
+	compile 'args4j:args4j:2.0.12'
     	
 	testCompile "org.spockframework:spock-core:0.5-groovy-1.7"
     testCompile "junit:junit:4.+"
