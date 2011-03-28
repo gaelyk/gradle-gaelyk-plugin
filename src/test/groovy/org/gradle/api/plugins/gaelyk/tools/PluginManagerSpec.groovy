@@ -125,6 +125,8 @@ class PluginManagerSpec extends Specification {
 		then:
 		pluginFile.exists()
 		pluginFile.filterLine {it =~ /\s*install\s+plugin1\s*/}
+		cleanup:
+		new AntBuilder.delete(dir: dest.path)
 	}
 	
 	def "Disable plugin"(){

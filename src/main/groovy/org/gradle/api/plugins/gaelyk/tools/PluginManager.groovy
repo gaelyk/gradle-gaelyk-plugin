@@ -53,6 +53,7 @@ class PluginManager {
 		File tmp = File.createTempFile("gaelyk-plugin-download-" + new Random().nextInt(), ".zip")
 		new AntBuilder().get(src: url, dest: tmp.path)
 		installFromZip tmp, url
+		tmp.delete()
 	}
 	
 	private installFromGit(git){
