@@ -48,7 +48,9 @@ class GaelykPlugin implements Plugin<Project> {
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
 
-		project.tasks.addRule new ArgsRule(args: project.task("args", type: ArgsTask), project: project)
+		def args = project.task("args", type: ArgsTask)
+		
+		project.tasks.addRule new ArgsRule(args: args, project: project)
 		project.task "gaelykInstall", type: GaelykInstallPluginTask
 		project.task "gaelykUninstall", type: GaelykUninstallPluginTask
 		project.task "gaelykInstalled", type: GaelykInstalledPluginsTask

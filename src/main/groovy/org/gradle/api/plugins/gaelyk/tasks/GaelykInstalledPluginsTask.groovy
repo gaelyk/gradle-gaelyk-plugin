@@ -24,7 +24,7 @@ class GaelykInstalledPluginsTask extends DefaultTask {
 		println "${'Name'.padRight(35)} Path"
 		println "-" * 80
 		manager.history.plugin.each{ plugin ->
-			println "${(plugin.@name.text()?:'unspecified').padRight(35)} ${plugin.@origin.text()}"
+			println "${(plugin.@name.text()?:'<unspecified>').padRight(35)} ${plugin.@origin.text()}"
 		}
 	}
 
