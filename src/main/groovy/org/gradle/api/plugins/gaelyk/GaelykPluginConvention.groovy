@@ -23,16 +23,9 @@ import org.gradle.api.plugins.gaelyk.tools.PluginManager
  * @author Benjamin Muschko
  */
 class GaelykPluginConvention {
-    private currentPlugins = []
 	
 	def gaelyk(Closure closure) {
         closure.delegate = this
-		closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure()
-		new PluginManager().manage(currentPlugins)
     }
-	
-	def apply(plugin){
-		currentPlugins << plugin
-	}
 }

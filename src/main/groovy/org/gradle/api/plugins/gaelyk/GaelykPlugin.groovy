@@ -17,6 +17,7 @@ package org.gradle.api.plugins.gaelyk
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task;
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.plugins.WarPluginConvention
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
@@ -42,9 +43,24 @@ class GaelykPlugin implements Plugin<Project> {
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
 
+		configureArgsTaskAndRule(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
     }
+	
+	private void configureArgsTaskAndRule(final Project project){
+		Task args = project.tasks.add('args')
+		args.map = [:]
+		project.tasks.addRule("Pattern: <property>=<value>: Passes arguments to the scripts") { String taskName ->
+			def match = taskName =~ /(.*?)=(.*?$)/
+			if(match){
+				args.map[match[0][1]] = match[0][2]
+				task(taskName) << {
+					println "Used to pass value ${match[0][2]} to args.map.${match[0][1]}"
+				}
+			}
+		}
+	}
 
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->

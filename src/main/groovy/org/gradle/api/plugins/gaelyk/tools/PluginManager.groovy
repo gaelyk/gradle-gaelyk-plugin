@@ -3,10 +3,6 @@ package org.gradle.api.plugins.gaelyk.tools
 import groovy.xml.StreamingMarkupBuilder;
 import groovy.xml.XmlUtil;
 
-import org.codehaus.groovy.jsr223.GroovyScriptEngineFactory;
-
-import org.eclipse.jgit.pgm.Main
-
 class PluginManager {
 
 	static final String GAELYKHISTORY = ".gaelykhistory"
@@ -39,14 +35,45 @@ class PluginManager {
 		}
 	}
 	
-	private install(plugin){
-		if (plugin.archive) {
-			installFromZip plugin.archive as File
-		} else if(plugin.git){
-			installFromGit plugin.git
-		} else if(plugin.url){
-			installFromUrl plugin.url
+	def install(plugin){
+		switch (plugin) {
+		case ~/http[s]?:.*?.zip/:
+			installFromUrl plugin
+			break
+		case ~/.*?\.zip/:
+			installFromZip plugin as File
+			break
+		default:
+			println "Cannot install plugin: $plugin"
 		}
+	}
+	
+	def getHistory() {
+		new XmlSlurper().parse(historyFile)
+	}
+	
+	
+	private uninstall(origin){
+		filesToDelete(origin).each{
+			def theFile = new File(projectRoot, it)
+			if(it =~ "war/WEB-INF/plugins/\\w+.groovy") {
+				def name = theFile.name - ".groovy"
+				def plugins = new File(projectRoot, "war/WEB-INF/plugins.groovy")
+				if(plugins.exists()){
+					if(plugins.readLines().grep(~/\s*install\s+$name\s*/)){
+						plugins.text = plugins.text.replaceAll(/\s*install\s+$name\s*/, "")
+					}
+					
+					if(!plugins.text.trim()){
+						plugins.delete()
+					}
+				}
+			}
+			if(theFile.exists()){
+				theFile.deleteOnExit()
+			}
+		}
+		removeHistoryRecord origin
 	}
 	
 	private installFromUrl(url){
@@ -54,13 +81,6 @@ class PluginManager {
 		new AntBuilder().get(src: url, dest: tmp.path)
 		installFromZip tmp, url
 		tmp.delete()
-	}
-	
-	private installFromGit(git){
-		TempDir.withTempDir 'gaelyk-git-temp', { 
-			Main.main(["clone", git, it.path] as String[])
-			installFromDir(it, git as String)
-		}
 	}
 	
 	private installFromZip(File zip, origin = zip.path){
@@ -125,7 +145,7 @@ class PluginManager {
 		def pluginHistory = theHistory.plugin.find{it.@origin == pluginUrl}
 		if(pluginHistory){
 			pluginHistory.replaceNode{
-				plugin(origin: pluginUrl, installed: new Date()){
+				plugin(origin: pluginUrl, installed: new Date(), name: getBareName(pluginUrl.toString())){
 					stage.eachFileRecurse{ theFile ->
 						file(name: theFile.path[stage.path.size()..-1])
 					}
@@ -133,7 +153,7 @@ class PluginManager {
 			}
 		} else {
 			theHistory.appendNode{
-				plugin(origin: pluginUrl, installed: new Date()){
+				plugin(origin: pluginUrl, installed: new Date(), name: getBareName(pluginUrl.toString())){
 					stage.eachFileRecurse{ theFile ->
 						file(name: theFile.path[stage.path.size()..-1])
 					}
@@ -142,9 +162,9 @@ class PluginManager {
 		}
 		writeHistory(theHistory)
 	}
-
-	private getHistory() {
-		new XmlSlurper().parse(historyFile)
+	
+	private getBareName(String origin){
+		origin[(origin.lastIndexOf("/")+1)..(origin.lastIndexOf(".")-1)]
 	}
 
 	private writeHistory(history) {
@@ -193,29 +213,6 @@ class PluginManager {
 				plugins.append("\ninstall $pluginName\n")
 			}
 		}
-	}
-	
-	private removePlugin(origin){
-		filesToDelete(origin).each{
-			def theFile = new File(projectRoot, it)
-			if(it =~ "war/WEB-INF/plugins/\\w+.groovy") {
-				def name = theFile.name - ".groovy"
-				def plugins = new File(projectRoot, "war/WEB-INF/plugins.groovy")
-				if(plugins.exists()){
-					if(plugins.readLines().grep(~/\s*install\s+$name\s*/)){
-						plugins.text = plugins.text.replaceAll(/\s*install\s+$name\s*/, "")
-					}
-					
-					if(!plugins.text.trim()){
-						plugins.delete()
-					}
-				}
-			}
-			if(theFile.exists()){
-				theFile.deleteOnExit()
-			}
-		}
-		removeHistoryRecord origin
 	}
 	
 	private getInstalledPlugins(){
