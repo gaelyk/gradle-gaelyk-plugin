@@ -44,7 +44,7 @@ Use `//` instead of `http://` in path were necessary.
 uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
 `gradle gaelykUninstall plugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
 
-* `gaelykInstalled`: Shows what plugins are already installe using the `gaelykInstall` task
+* `gaelykInstalled`: Shows what plugins are already installed using the `gaelykInstall` task
 
 
 ## Task Rules
