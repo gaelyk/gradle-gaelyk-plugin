@@ -35,13 +35,13 @@ the base directory of your web application (`war` by default). The following cod
 Plugin must be zip archive either on the file system or on the web.
 Use `//` instead of `http://` to indicate that the plugin is located on the web.
  _Example:_ `gradle gaelykInstall plugin=//github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
-installs the [JSON plugin][https://github.com/bmuschko/gaelyk-jsonlib-plugin].
+installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
 
 * `gaelykUninstall plugin=<path or name>`: Uninstalls plugin specified by given `path` or `name`. 
 Path or name can be easily find using the `gaelykInstalled` task. The name is the name of the original file without the zip extension.
 Use `//` instead of `http://` in path were necessary.
  _Example:_ `gradle gaelykUninstall plugin=//github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
-uninstalls the [JSON plugin][https://github.com/bmuschko/gaelyk-jsonlib-plugin].
+uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
 `gradle gaelykUninstall plugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
 
 * `gaelykInstalled`: Shows what plugins are already installe using the `gaelykInstall` task
