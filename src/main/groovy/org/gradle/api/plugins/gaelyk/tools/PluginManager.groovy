@@ -3,6 +3,19 @@ package org.gradle.api.plugins.gaelyk.tools
 import groovy.xml.StreamingMarkupBuilder;
 import groovy.xml.XmlUtil;
 
+/**
+ * {@link PluginManager} manages installed Gaelyk plugins.
+ * Use it to {@link #install()} or {@link #uninstall()} plugins. 
+ * Installed plugins are recoreded to the  {@code .gaelykhistory} file which
+ * can be accessed using {@link #getHistory()} method (as GPath result).
+ * <br/>
+ * Only zipped distribution are currently allowed. <code>.gaelykplugin</code>
+ * file with includes and excludes variables can be included in the root of
+ * the plugin archive. It specifies which files from archive should (not) be 
+ * copied into the project directory.
+ * @author Vladimir Orany
+ *
+ */
 class PluginManager {
 
 	static final String GAELYKHISTORY = ".gaelykhistory"
@@ -13,26 +26,6 @@ class PluginManager {
 	
 	PluginManager(projectRoot = "."){
 		this.projectRoot = projectRoot as File
-	}
-	
-	def manage(current){
-		def installed = []
-		installed.addAll(installedPlugins)
-		current.each{
-			def origin = it.archive ?: it.git ?: it.url
-			assert origin, "Use archive, git or url to specify the plugin origin"
-			if(origin in installed){
-				println "Plugin $origin already installed."
-				installed.remove(origin)
-			} else {
-				println "Plugin $origin is not installed yet. I'm installing it now."
-				install it
-			}
-		}
-		installed.each {
-			println "Plugin $it was removed. I'm removing it now."
-			removePlugin it
-		}
 	}
 	
 	def install(plugin){
@@ -53,7 +46,7 @@ class PluginManager {
 	}
 	
 	
-	private uninstall(origin){
+	def uninstall(origin){
 		filesToDelete(origin).each{
 			def theFile = new File(projectRoot, it)
 			if(it =~ "war/WEB-INF/plugins/\\w+.groovy") {

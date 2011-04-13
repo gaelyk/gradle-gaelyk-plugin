@@ -4,6 +4,11 @@ import org.gradle.api.Project;
 import org.gradle.api.Rule;
 import org.gradle.api.plugins.gaelyk.tasks.ArgsTask;
 
+/**
+ * {@link Rule} to pass arguments to the {@link ArgsTask}
+ * @author Vladimir Orany
+ *
+ */
 class ArgsRule implements Rule{
 
 	ArgsTask args

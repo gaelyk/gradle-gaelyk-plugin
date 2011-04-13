@@ -1,5 +1,10 @@
 package org.gradle.api.plugins.gaelyk.tools
 
+/**
+ * Utility class for creating temporary directories.
+ * @author Vladimir Orany
+ *
+ */
 class TempDir {
 	
 	@Lazy static tempDir = new File(System.getProperty('java.io.tmpdir'))

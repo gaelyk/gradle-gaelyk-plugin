@@ -20,6 +20,11 @@ import org.gradle.api.Project
 import org.gradle.api.Task;
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.plugins.WarPluginConvention
+import org.gradle.api.plugins.gaelyk.rules.ArgsRule;
+import org.gradle.api.plugins.gaelyk.tasks.ArgsTask;
+import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask;
+import org.gradle.api.plugins.gaelyk.tasks.GaelykInstalledPluginsTask;
+import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask;
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
@@ -43,24 +48,15 @@ class GaelykPlugin implements Plugin<Project> {
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
 
-		configureArgsTaskAndRule(project)
+		project.tasks.addRule new ArgsRule(args: project.task("args", type: ArgsTask), project: project)
+		project.task "gaelykInstall", type: GaelykInstallPluginTask
+		project.task "gaelykUninstall", type: GaelykUninstallPluginTask
+		project.task "gaelykInstalled", type: GaelykInstalledPluginsTask
+		
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
     }
-	
-	private void configureArgsTaskAndRule(final Project project){
-		Task args = project.tasks.add('args')
-		args.map = [:]
-		project.tasks.addRule("Pattern: <property>=<value>: Passes arguments to the scripts") { String taskName ->
-			def match = taskName =~ /(.*?)=(.*?$)/
-			if(match){
-				args.map[match[0][1]] = match[0][2]
-				task(taskName) << {
-					println "Used to pass value ${match[0][2]} to args.map.${match[0][1]}"
-				}
-			}
-		}
-	}
+
 
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->
