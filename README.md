@@ -31,11 +31,11 @@ the base directory of your web application (`war` by default). The following cod
 
 ## Tasks
 
-* `gaelykInstallPlugin -Pplugin=<URI>`: Installs plugin provided by the command line property `plugin`. Plugin must be ZIP
+* `gaelykInstallPlugin`: Installs plugin provided by the command line property `plugin`. Plugin must be ZIP
 archive either on the file system or on the web.
  _Example:_ `gradle gaelykInstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
 installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
-* `gaelykUninstallPlugin -Pplugin=<path or name>`: Uninstalls plugin specified by given `path` or `name` provided by the
+* `gaelykUninstallPlugin`: Uninstalls plugin specified by given `path` or `name` provided by the
  command line property `plugin`. Path or name can easily be determined by running the `gaelykListInstalledPlugins` task.
  The name is the name of the original file without the ZIP extension.
  _Example:_ `gradle gaelykUninstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
