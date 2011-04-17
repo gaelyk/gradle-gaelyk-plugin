@@ -17,11 +17,11 @@ repositories {
 dependencies {
     groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['**/groovy-all-*.jar'])
     
-	compile gradleApi()
-	compile 'com.jcraft:jsch:0.1.44-1'
-    	
-	testCompile "org.spockframework:spock-core:0.5-groovy-1.7"
-    testCompile "junit:junit:4.+"
+    compile gradleApi()
+    compile 'com.jcraft:jsch:0.1.44-1'
+
+    testCompile "org.spockframework:spock-core:0.5-groovy-1.7",
+                "junit:junit:4.+"
 }
 
 jar {
