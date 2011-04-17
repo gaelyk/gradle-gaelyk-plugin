@@ -1,27 +1,41 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gradle.api.plugins.gaelyk.tools
 
-import groovy.xml.StreamingMarkupBuilder;
-import groovy.xml.XmlUtil;
+import groovy.xml.StreamingMarkupBuilder
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 /**
- * {@link PluginManager} manages installed Gaelyk plugins.
- * Use it to {@link #install()} or {@link #uninstall()} plugins. 
+ * {@link org.gradle.api.plugins.gaelyk.tools.PluginManager} manages installed Gaelyk plugins.
+ * Use it to install or uninstall plugins.
  * Installed plugins are recoreded to the  {@code .gaelykhistory} file which
- * can be accessed using {@link #getHistory()} method (as GPath result).
+ * can be accessed using getHistory() method (as GPath result).
  * <br/>
  * Only zipped distribution are currently allowed. <code>.gaelykplugin</code>
  * file with includes and excludes variables can be included in the root of
  * the plugin archive. It specifies which files from archive should (not) be 
  * copied into the project directory.
- * @author Vladimir Orany
  *
+ * @author Vladimir Orany
  */
 class PluginManager {
-
+    static final Logger LOGGER = Logging.getLogger(PluginManager.class)
 	static final String GAELYKHISTORY = ".gaelykhistory"
-
 	static final String GAELYKPLUGIN = ".gaelykplugin"
-	
 	final File projectRoot
 	
 	PluginManager(projectRoot = "."){
@@ -37,7 +51,7 @@ class PluginManager {
 			installFromZip plugin as File
 			break
 		default:
-			println "Cannot install plugin: $plugin"
+			LOGGER.error "Cannot install plugin: $plugin"
 		}
 	}
 	
@@ -211,6 +225,4 @@ class PluginManager {
 	private getInstalledPlugins(){
 		history.plugin.@origin*.text()
 	}
-	
-
 }

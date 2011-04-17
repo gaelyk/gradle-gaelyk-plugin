@@ -1,34 +1,37 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.gradle.api.plugins.gaelyk.tasks
 
-import org.gradle.api.DefaultTask;
-import org.gradle.api.plugins.gaelyk.GaelykPlugin;
-import org.gradle.api.plugins.gaelyk.tools.PluginManager;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.TaskAction
 
 /**
-* {@link Task} which uninstalls Gaelyk plugins defined by plugin=path.
-* @author Vladimir Orany
-*
-*/
-class GaelykUninstallPluginTask extends DefaultTask {
-	
-	PluginManager manager = new PluginManager()
-	
-	GaelykUninstallPluginTask(){
-		dependsOn 'args'
-		group = GaelykPlugin.GAELYK_GROUP
-		description = "Uninstalls Gaelyk plugin. Use plugin=<path> to specify the name. Use '//' instead of 'http://'."
-	}
-	
-	@TaskAction
-	def uninstall(){
-		def args = project.tasks.findByName('args')
-		assert args
-		def plugin = args.map.plugin
-		assert plugin
-		if(plugin.startsWith("//")) { plugin = "http:" + plugin }
-		manager.uninstall plugin
-		println "$plugin uninstalled successfully."
-	}
+ * Task which uninstalls Gaelyk plugins defined by the property plugin.
+ *
+ * @author Vladimir Orany
+ */
+class GaelykUninstallPluginTask extends GaelykUserInputPluginTask {
+    static final Logger LOGGER = Logging.getLogger(GaelykUninstallPluginTask.class)
 
+    @TaskAction
+    def uninstall(){
+        LOGGER.info "Uninstalling Gaelyk plugin."
+        validateUserInput()
+        manager.uninstall getPlugin()
+        LOGGER.lifecycle "${getPlugin()} uninstalled successfully."
+    }
 }

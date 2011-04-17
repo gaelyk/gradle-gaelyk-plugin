@@ -15,23 +15,28 @@
  */
 package org.gradle.api.plugins.gaelyk.tasks
 
+import org.gradle.api.DefaultTask
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.plugins.gaelyk.tools.PluginManager
 import org.gradle.api.tasks.TaskAction
 
 /**
- * Task which installs Gaelyk plugins defined by the property plugin.
+ * Task which prints installed Gaelyk plugins.
  *
  * @author Vladimir Orany
  */
-class GaelykInstallPluginTask extends GaelykUserInputPluginTask {
-    static final Logger LOGGER = Logging.getLogger(GaelykUninstallPluginTask.class)
+class GaelykListInstalledPluginsTask extends DefaultTask {
+    static final Logger LOGGER = Logging.getLogger(GaelykListInstalledPluginsTask.class)
+    PluginManager manager = new PluginManager()
 
     @TaskAction
-    def install(){
-        LOGGER.info "Installing Gaelyk plugin."
-        validateUserInput()
-        manager.install getPlugin()
-        LOGGER.lifecycle "${getPlugin()} uninstalled successfully."
+    def list(){
+        LOGGER.info "Listing installed Gaelyk plugins."
+        LOGGER.lifecycle "${'Name'.padRight(35)} Path"
+        LOGGER.lifecycle "-" * 80
+        manager.history.plugin.each{ plugin ->
+            LOGGER.lifecycle "${(plugin.@name.text()?:'<unspecified>').padRight(35)} ${plugin.@origin.text()}"
+        }
     }
 }
