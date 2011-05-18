@@ -32,6 +32,6 @@ class GaelykInstallPluginTask extends GaelykUserInputPluginTask {
         LOGGER.info "Installing Gaelyk plugin."
         validateUserInput()
         manager.install getPlugin()
-        LOGGER.lifecycle "${getPlugin()} uninstalled successfully."
+        LOGGER.lifecycle "${getPlugin()} installed successfully."
     }
 }
