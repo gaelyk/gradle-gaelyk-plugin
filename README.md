@@ -14,16 +14,16 @@ either get the plugin from the GitHub download section or upload it to your loca
 the base directory of your web application (`war` by default). The following code snippet shows an example:
 
     buildscript {
-	    repositories {
-		    add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-    		    name = "GitHub"
-    		    addArtifactPattern 'http://cloud.github.com/downloads/bmuschko/gradle-gaelyk-plugin/[module]-[revision].[ext]'
-  		    }
+        repositories {
+            add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+                name = 'GitHub'
+                addArtifactPattern 'http://cloud.github.com/downloads/[organisation]/[module]/[module]-[revision].[ext]'
+            }
             mavenCentral()
         }
 
-	    dependencies {
-            classpath ':gradle-gaelyk-plugin:0.1'
+        dependencies {
+            classpath 'bmuschko:gradle-gaelyk-plugin:0.1'
         }
     }
 
