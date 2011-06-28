@@ -1,5 +1,7 @@
 # Gradle Gaelyk plugin
 
+![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
+
 The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It extends
 the War plugin.
 
