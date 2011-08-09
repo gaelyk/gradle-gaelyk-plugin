@@ -32,8 +32,8 @@ the base directory of your web application (`war` by default). The following cod
     webAppDirName = new File("war")
 
 ## Tasks
-
-* `gaelykInstallPlugin`: Installs plugin provided by the command line property `plugin`. Plugin must be ZIP
+* `gaelykListPlugins`: Shows all available plugins from the Gaelyk plugins catalogue.
+* `gaelykInstallPlugin`: Installs plugin provided by the command line property `plugin`. Plugin must be plugin identificator from the catalgoue or ZIP
 archive either on the file system or on the web.
  _Example:_ `gradle gaelykInstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
 installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
@@ -43,7 +43,6 @@ installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
  _Example:_ `gradle gaelykUninstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
 uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin). `gradle gaelykUninstallPlugin -Pplugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
 * `gaelykListInstalledPlugins`: Shows plugins that have been installed by the `gaelykInstallPlugin` task.
-
 ## Task Rules
 
 * `gaelykCreateController<ControllerName>`: Creates a Gaelyk controller (Groovlet). Optionally, you can define the directory

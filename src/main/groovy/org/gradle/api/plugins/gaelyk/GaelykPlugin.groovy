@@ -21,6 +21,7 @@ import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.plugins.WarPluginConvention
 import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask;
 import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
@@ -39,6 +40,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_INSTALL_PLUGIN = "gaelykInstallPlugin"
     static final String GAELYK_UNINSTALL_PLUGIN = "gaelykUninstallPlugin"
     static final String GAELYK_LIST_INSTALLED_PLUGINS = "gaelykListInstalledPlugins"
+	static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
 
@@ -51,6 +53,7 @@ class GaelykPlugin implements Plugin<Project> {
 		configureGaelykInstallPluginTask(project)
 		configureGaelykUninstallPluginTask(project)
 		configureGaelykListInstalledPluginsTask(project)
+		configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
     }
@@ -80,6 +83,12 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykListInstalledPluginsTask.description = "Lists installed Gaelyk plugins."
         gaelykListInstalledPluginsTask.group = GAELYK_GROUP
     }
+	
+	private void configureGaelykListPluginsTask(final Project project) {
+		GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask.class)
+		gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
+		gaelykListPluginsTask.group = GAELYK_GROUP
+	}
 
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->
