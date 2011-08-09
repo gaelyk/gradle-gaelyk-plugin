@@ -5,6 +5,26 @@ import spock.lang.Specification
 
 class PluginManagerSpec extends Specification {
 
+	
+	def "Install from catalogue"(){
+		setup:
+		def dest = TempDir.createNew("install-from-catalogue")
+		
+		when:
+		new PluginManager(dest).install "jsonlib"
+		
+		then:
+		new File(dest, file).exists() == exists
+		
+		cleanup:
+			new AntBuilder().delete dir:dest.path
+
+		where:
+		file           | exists
+		'war'          | true
+		'test'         | false
+	}
+	
 	def "Install from archive"(){
 		setup:
 		def dest = TempDir.createNew("install-from-archive")

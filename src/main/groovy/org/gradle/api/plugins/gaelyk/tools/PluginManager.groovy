@@ -16,6 +16,8 @@
 package org.gradle.api.plugins.gaelyk.tools
 
 import groovy.xml.StreamingMarkupBuilder
+
+import org.gradle.api.internal.DynamicObjectHelper.Location;
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -36,6 +38,11 @@ class PluginManager {
     static final Logger LOGGER = Logging.getLogger(PluginManager.class)
     static final String GAELYKHISTORY = ".gaelykhistory"
     static final String GAELYKPLUGIN = ".gaelykplugin"
+	
+	static final String CATALOGUE_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelykByName/forGradle'
+	static final String CATALOGUE_BY_UPDATED_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelyk/forGradle'
+	
+	
     final File projectRoot
 
     PluginManager(projectRoot = "."){
@@ -51,7 +58,8 @@ class PluginManager {
             installFromZip plugin as File
             break
         default:
-            LOGGER.error "Cannot install plugin: $plugin"
+			installFromCatalogue plugin
+
         }
     }
 
@@ -82,24 +90,35 @@ class PluginManager {
         }
         removeHistoryRecord origin
     }
+	
+	
+	private installFromCatalogue(id){
+		def plugins = new XmlSlurper().parseText(new URL(PluginManager.CATALOGUE_BY_UPDATED_LOCATION).text)
+		def plugin = plugins.plugin.find { it.@id.text() == id }
+		if(plugin && plugin.link?.text()){
+			installFromUrl plugin.link.text(), id
+		} else {
+			LOGGER.error "Cannot install plugin: $plugin"
+		}
+	}
 
-    private installFromUrl(url){
+    private installFromUrl(url, id = null){
         File tmp = File.createTempFile("gaelyk-plugin-download-" + new Random().nextInt(), ".zip")
         new AntBuilder().get(src: url, dest: tmp.path)
-        installFromZip tmp, url
+        installFromZip tmp, url, id
         tmp.delete()
     }
 
-    private installFromZip(File zip, origin = zip.path){
+    private installFromZip(File zip, origin = zip.path, id = null){
         TempDir.withTempDir 'gaelyk-unzipped-plugin', { tmp ->
             new AntBuilder().unzip src: zip.path, dest: tmp.path
 
-            installFromDir(tmp, origin)
+            installFromDir(tmp, origin, id)
 
         }
     }
 
-    private installFromDir(tmp, origin = tmp){
+    private installFromDir(tmp, origin = tmp, id){
         def props = readPluginDescriptor(tmp.path)
 
         TempDir.withTempDir 'gaelyk-plugin-stage', { stage ->
@@ -122,7 +141,7 @@ class PluginManager {
                 }
             }
 
-            addHistory(stage, origin)
+            addHistory(stage, origin, id)
             installPlugins(stage)
 
             new AntBuilder().copy(todir: projectRoot.path){
@@ -147,12 +166,12 @@ class PluginManager {
 
     }
 
-    private addHistory(stage, pluginUrl){
+    private addHistory(stage, pluginUrl, id){
         def theHistory = history
         def pluginHistory = theHistory.plugin.find{it.@origin == pluginUrl}
         if(pluginHistory){
             pluginHistory.replaceNode{
-                plugin(origin: pluginUrl, installed: new Date(), name: getBareName(pluginUrl.toString())){
+                plugin(origin: pluginUrl, installed: new Date(), name: id ?: getBareName(pluginUrl.toString())){
                     stage.eachFileRecurse{ theFile ->
                         file(name: theFile.path[stage.path.size()..-1])
                     }
@@ -160,7 +179,7 @@ class PluginManager {
             }
         } else {
             theHistory.appendNode{
-                plugin(origin: pluginUrl, installed: new Date(), name: getBareName(pluginUrl.toString())){
+                plugin(origin: pluginUrl, installed: new Date(), name: id ?: getBareName(pluginUrl.toString())){
                     stage.eachFileRecurse{ theFile ->
                         file(name: theFile.path[stage.path.size()..-1])
                     }
