@@ -5,7 +5,7 @@ apply plugin: 'eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
-version = '0.1'
+version = '0.2'
 
 codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
