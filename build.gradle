@@ -11,7 +11,7 @@ codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
-	mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
+    mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
 }
 
 dependencies {

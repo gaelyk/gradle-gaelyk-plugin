@@ -38,11 +38,10 @@ class PluginManager {
     static final Logger LOGGER = Logging.getLogger(PluginManager.class)
     static final String GAELYKHISTORY = ".gaelykhistory"
     static final String GAELYKPLUGIN = ".gaelykplugin"
-	
-	static final String CATALOGUE_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelykByName/forGradle'
-	static final String CATALOGUE_BY_UPDATED_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelyk/forGradle'
-	
-	
+
+    static final String CATALOGUE_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelykByName/forGradle'
+    static final String CATALOGUE_BY_UPDATED_LOCATION = 'http://atomicfeed.appspot.com/atom/gaelyk/forGradle'
+
     final File projectRoot
 
     PluginManager(projectRoot = "."){
@@ -58,8 +57,7 @@ class PluginManager {
             installFromZip plugin as File
             break
         default:
-			installFromCatalogue plugin
-
+            installFromCatalogue plugin
         }
     }
 
@@ -90,17 +88,16 @@ class PluginManager {
         }
         removeHistoryRecord origin
     }
-	
-	
-	private installFromCatalogue(id){
-		def plugins = new XmlSlurper().parseText(new URL(PluginManager.CATALOGUE_BY_UPDATED_LOCATION).text)
-		def plugin = plugins.plugin.find { it.@id.text() == id }
-		if(plugin && plugin.link?.text()){
-			installFromUrl plugin.link.text(), id
-		} else {
-			LOGGER.error "Cannot install plugin: $plugin"
-		}
-	}
+
+    private installFromCatalogue(id){
+        def plugins = new XmlSlurper().parseText(new URL(PluginManager.CATALOGUE_BY_UPDATED_LOCATION).text)
+        def plugin = plugins.plugin.find { it.@id.text() == id }
+        if(plugin && plugin.link?.text()){
+            installFromUrl plugin.link.text(), id
+        } else {
+            LOGGER.error "Cannot install plugin: $plugin"
+        }
+    }
 
     private installFromUrl(url, id = null){
         File tmp = File.createTempFile("gaelyk-plugin-download-" + new Random().nextInt(), ".zip")

@@ -28,14 +28,13 @@ import org.gradle.api.tasks.TaskAction
  */
 class GaelykListPluginsTask extends DefaultTask {
     static final Logger LOGGER = Logging.getLogger(GaelykListPluginsTask.class)
-	
     
-	@TaskAction
+    @TaskAction
     def list(){
         LOGGER.info "Listing available Gaelyk plugins."
         LOGGER.info "Downloading from $PluginManager.CATALOGUE_LOCATION."
         def plugins = new XmlSlurper().parseText(new URL(PluginManager.CATALOGUE_LOCATION).text)
-		LOGGER.lifecycle "${'Id'.padRight(20)} Version Name"
+        LOGGER.lifecycle "${'Id'.padRight(20)} Version Name"
         LOGGER.lifecycle "-" * 80
         plugins.plugin.each{ plugin ->
             LOGGER.lifecycle "${(plugin.@id.text()).padRight(20)} ${(plugin.version?.text() ?: 'none').padRight(7)} ${(plugin.name.text())}"

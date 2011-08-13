@@ -40,7 +40,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_INSTALL_PLUGIN = "gaelykInstallPlugin"
     static final String GAELYK_UNINSTALL_PLUGIN = "gaelykUninstallPlugin"
     static final String GAELYK_LIST_INSTALLED_PLUGINS = "gaelykListInstalledPlugins"
-	static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
+    static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
 
@@ -50,10 +50,10 @@ class GaelykPlugin implements Plugin<Project> {
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
 
-		configureGaelykInstallPluginTask(project)
-		configureGaelykUninstallPluginTask(project)
-		configureGaelykListInstalledPluginsTask(project)
-		configureGaelykListPluginsTask(project)
+        configureGaelykInstallPluginTask(project)
+        configureGaelykUninstallPluginTask(project)
+        configureGaelykListInstalledPluginsTask(project)
+        configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
     }
@@ -83,12 +83,12 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykListInstalledPluginsTask.description = "Lists installed Gaelyk plugins."
         gaelykListInstalledPluginsTask.group = GAELYK_GROUP
     }
-	
-	private void configureGaelykListPluginsTask(final Project project) {
-		GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask.class)
-		gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
-		gaelykListPluginsTask.group = GAELYK_GROUP
-	}
+
+    private void configureGaelykListPluginsTask(final Project project) {
+        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask.class)
+        gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
+        gaelykListPluginsTask.group = GAELYK_GROUP
+    }
 
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->
