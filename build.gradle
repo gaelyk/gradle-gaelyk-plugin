@@ -5,13 +5,13 @@ apply plugin: 'eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
-version = '0.2'
+version = '0.3'
 
 codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
-    mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
+    artifactUrls= "http://m2repo.spockframework.org/snapshots"
 }
 
 dependencies {
@@ -34,10 +34,10 @@ jar {
     }
 }
 
-ideaProject {
+idea.project {
     javaVersion = '1.6'
   
-    withXml { provider ->
+    ipr.withXml { provider ->
         def node = provider.asNode()
 
         // Use GIT

@@ -23,6 +23,7 @@ import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask;
 import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileGroovyTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
@@ -43,6 +44,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
+	static final String GAELYK_PRECOMPILE_GROOVY = "gaelykPrecompileGroovy"
 
     @Override
     public void apply(Project project) {
@@ -56,6 +58,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
+		configureGaelykPrecompileGroovy(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -101,6 +104,13 @@ class GaelykPlugin implements Plugin<Project> {
             createGaelykFile(project, taskName, GAELYK_CREATE_VIEW, new GaelykViewCreator())
         }
     }
+	
+	
+	private static void configureGaelykPrecompileGroovy(final Project project) {
+		def gaelykPrecompileGroovyTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVY, GaelykPrecompileGroovyTask.class)
+		gaelykPrecompileGroovyTask.description = "Precompiles groovy classes located in the WEB-INF directory"
+		gaelykPrecompileGroovyTask.group = GAELYK_GROUP
+	}
 
     private void createGaelykFile(final Project project, final String taskName, final String taskBaseName, final GaelykFileCreator gaelykFileCreator) {
         if(taskName.startsWith(taskBaseName) && taskName.length() > taskBaseName.length()) {
