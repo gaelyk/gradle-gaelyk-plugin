@@ -25,7 +25,7 @@ the base directory of your web application (`war` by default). The following cod
         }
 
         dependencies {
-            classpath 'bmuschko:gradle-gaelyk-plugin:0.1'
+            classpath 'bmuschko:gradle-gaelyk-plugin:0.3'
         }
     }
 
