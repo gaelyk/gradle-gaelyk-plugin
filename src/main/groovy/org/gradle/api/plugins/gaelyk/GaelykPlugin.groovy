@@ -23,12 +23,13 @@ import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask;
 import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
-import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileGroovyTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileGroovletTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.gradle.api.file.FileCollection
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory
  * @author Benjamin Muschko
  */
 class GaelykPlugin implements Plugin<Project> {
-    static final Logger LOGGER = LoggerFactory.getLogger(GaelykPlugin.class)
+    static final Logger LOGGER = LoggerFactory.getLogger(GaelykPlugin)
     static final String GAELYK_GROUP = "Gaelyk"
     static final String GAELYK_INSTALL_PLUGIN = "gaelykInstallPlugin"
     static final String GAELYK_UNINSTALL_PLUGIN = "gaelykUninstallPlugin"
@@ -44,7 +45,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
-	static final String GAELYK_PRECOMPILE_GROOVY = "gaelykPrecompileGroovy"
+    static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
 
     @Override
     public void apply(Project project) {
@@ -58,7 +59,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
-		configureGaelykPrecompileGroovy(project)
+        configureGaelykPrecompileGroovlet(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -76,21 +77,34 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykUninstallPluginTask.conventionMapping.map("plugin") { getPluginProperty(project) }
         }
 
-        GaelykUninstallPluginTask gaelykUninstallPluginTask = project.tasks.add(GAELYK_UNINSTALL_PLUGIN, GaelykUninstallPluginTask.class)
+        GaelykUninstallPluginTask gaelykUninstallPluginTask = project.tasks.add(GAELYK_UNINSTALL_PLUGIN, GaelykUninstallPluginTask)
         gaelykUninstallPluginTask.description = "Uninstalls Gaelyk plugin."
         gaelykUninstallPluginTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykListInstalledPluginsTask(final Project project) {
-        GaelykListInstalledPluginsTask gaelykListInstalledPluginsTask = project.tasks.add(GAELYK_LIST_INSTALLED_PLUGINS, GaelykListInstalledPluginsTask.class)
+        GaelykListInstalledPluginsTask gaelykListInstalledPluginsTask = project.tasks.add(GAELYK_LIST_INSTALLED_PLUGINS, GaelykListInstalledPluginsTask)
         gaelykListInstalledPluginsTask.description = "Lists installed Gaelyk plugins."
         gaelykListInstalledPluginsTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykListPluginsTask(final Project project) {
-        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask.class)
+        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask)
         gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
         gaelykListPluginsTask.group = GAELYK_GROUP
+    }
+
+    private void configureGaelykPrecompileGroovlet(final Project project) {
+        project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
+            gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
+            gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
+            gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/groovy') }
+            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/classes') }
+        }
+
+        def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
+        gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
+        gaelykPrecompileGroovletTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykCreateControllerTask(final Project project) {
@@ -104,13 +118,6 @@ class GaelykPlugin implements Plugin<Project> {
             createGaelykFile(project, taskName, GAELYK_CREATE_VIEW, new GaelykViewCreator())
         }
     }
-	
-	
-	private static void configureGaelykPrecompileGroovy(final Project project) {
-		def gaelykPrecompileGroovyTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVY, GaelykPrecompileGroovyTask.class)
-		gaelykPrecompileGroovyTask.description = "Precompiles groovy classes located in the WEB-INF directory"
-		gaelykPrecompileGroovyTask.group = GAELYK_GROUP
-	}
 
     private void createGaelykFile(final Project project, final String taskName, final String taskBaseName, final GaelykFileCreator gaelykFileCreator) {
         if(taskName.startsWith(taskBaseName) && taskName.length() > taskBaseName.length()) {
@@ -132,6 +139,17 @@ class GaelykPlugin implements Plugin<Project> {
     }
 
     private WarPluginConvention getWarConvention(Project project) {
-        project.convention.getPlugin(WarPluginConvention.class)
+        project.convention.getPlugin(WarPluginConvention)
+    }
+
+    /**
+     * Creates classpath from classes directory and runtime classpath.
+     *
+     * @return Classpath
+     */
+    private FileCollection createRuntimeClasspath(Project project) {
+        FileCollection runtimeClasspath = project.files(project.sourceSets.main.classesDir)
+        runtimeClasspath += project.files { new File(getWarConvention(project).webAppDir, 'WEB-INF/lib').listFiles().findAll { it.name.endsWith('.jar') } }
+        runtimeClasspath
     }
 }
