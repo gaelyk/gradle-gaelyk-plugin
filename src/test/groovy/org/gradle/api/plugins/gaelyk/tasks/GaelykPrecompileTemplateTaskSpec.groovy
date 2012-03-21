@@ -33,6 +33,10 @@ class PrecompileTemplateTaskSpec extends Specification {
             def templatesSrcDir = new File(dir, '/templates')
             templatesSrcDir.mkdirs()
             new File(templatesSrcDir, 'datetime.gtpl').append('<html><body>Hello $world</body></html>')
+            def packageDir = new File(templatesSrcDir, '/pkg')
+            packageDir.mkdirs()
+            new File(packageDir, 'datetime.gtpl').append('<html><body>Hello $world</body></html>')
+            
             def classDestDir = new File(dir, '/classes')
             classDestDir.mkdirs()
 
@@ -47,6 +51,7 @@ class PrecompileTemplateTaskSpec extends Specification {
 
         then:
             new File(classDestDir, '$gtpl$datetime.class').exists()
+            new File(classDestDir.absolutePath + '/pkg', '$gtpl$datetime.class').exists()
     }
     
     
@@ -54,7 +59,17 @@ class PrecompileTemplateTaskSpec extends Specification {
     def "Get script name"(){
         def info =  GaelykPrecompileTemplateTask.getTemplateScriptInfo(new File('gtpls'), new File('gtpls/xyz/template.gtpl'))
         expect:
-        info.dir == 'xyz'
-        info.file == '$gtpl$template.groovy'
+            info.dir == 'xyz'
+            info.file == '$gtpl$template.groovy'
+    }
+    
+    def "Dir to pkg"(){
+        expect:
+        GaelykPrecompileTemplateTask.dirToPackage('') == ''
+        GaelykPrecompileTemplateTask.dirToPackage('pkg') == 'pkg'
+        GaelykPrecompileTemplateTask.dirToPackage('pkg/next/other') == 'pkg.next.other'
+        GaelykPrecompileTemplateTask.dirToPackage('WEB-INF/something') == 'web_inf.something'
+        GaelykPrecompileTemplateTask.dirToPackage('I"m extra obscure') == 'i_m_extra_obscure'
+        
     }
 }

@@ -22,6 +22,7 @@ import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
+import org.gradle.api.internal.file.UnionFileCollection;
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.plugins.gaelyk.tools.TempDir
@@ -46,6 +47,10 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
         }
         return null
     }
+    
+    static String dirToPackage(String dir){
+        return dir.replace(File.separator, '.').replaceAll(/[^a-zA-Z0-9\.]/, '_').toLowerCase()
+    }
 
     @InputFiles FileCollection groovyClasspath
     @InputFiles FileCollection runtimeClasspath
@@ -54,22 +59,22 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
 
     @TaskAction
     def precompile(){
-        TemplateToScriptConvertor convertor = [runtimeClasspath]
+        TemplateToScriptConvertor convertor = [getRuntimeClasspath()]
 
 
         File dir = TempDir.createNew('gtpl-staging')
-        srcDir.eachFileRecurse { File template ->
+        getSrcDir().eachFileRecurse { File template ->
             if(template.name.endsWith('.gtpl')){
-                def info = getTemplateScriptInfo(srcDir, template)
+                def info = getTemplateScriptInfo(getSrcDir(), template)
                 File parent = dir
                 if(info.dir){
                     parent = new File(dir.absolutePath + File.separator + info.dir)
-                    assert parent.mkdirs()
+                    parent.mkdirs()
                 }
                 assert parent.exists()
                 File file = new File(parent, info.file)
                 assert file.createNewFile()
-                file.write convertor.getTemplateAsScript(template.text)
+                file.write convertor.getTemplateAsScript(template.text, dirToPackage(info.dir))
             }
 
         }
@@ -90,9 +95,12 @@ class TemplateToScriptConvertor {
         ste = [hjgs]
     }
 
-    public String getTemplateAsScript(String template){
+    public String getTemplateAsScript(String template, String pkg){
         ste.createTemplate(template)
-        hjgs.scriptText
+        if(pkg){
+            return 'package ' + pkg + ';' + hjgs.scriptText
+        }
+        return hjgs.scriptText
     }
 }
 
