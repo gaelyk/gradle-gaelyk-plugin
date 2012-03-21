@@ -22,6 +22,7 @@ import org.gradle.api.plugins.WarPluginConvention
 import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask;
+import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileTemplateTask;
 import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
 import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileGroovletTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
@@ -46,6 +47,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
     static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
+    static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplate"
 
     @Override
     public void apply(Project project) {
@@ -60,6 +62,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
         configureGaelykPrecompileGroovlet(project)
+        configureGaelykPrecompileTemplate(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -105,6 +108,19 @@ class GaelykPlugin implements Plugin<Project> {
         def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
         gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
         gaelykPrecompileGroovletTask.group = GAELYK_GROUP
+    }
+    
+    private void configureGaelykPrecompileTemplate(final Project project) {
+        project.tasks.withType(GaelykPrecompileTemplateTask).whenTaskAdded { GaelykPrecompileTemplateTask gaelykPrecompilTemplateTask ->
+            gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
+            gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
+            gaelykPrecompilTemplateTask.conventionMapping.map("srcDir") { getWarConvention(project).webAppDir }
+            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/classes') }
+        }
+
+        def GaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
+        GaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
+        GaelykPrecompileTemplateTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykCreateControllerTask(final Project project) {
