@@ -16,8 +16,6 @@
 package org.gradle.api.plugins.gaelyk.tools
 
 import groovy.xml.StreamingMarkupBuilder
-
-import org.gradle.api.internal.DynamicObjectHelper.Location;
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
