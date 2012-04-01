@@ -17,19 +17,15 @@ package org.gradle.api.plugins.gaelyk
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.plugins.WarPluginConvention
-import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
-import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
-import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask;
-import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
-import org.gradle.api.plugins.gaelyk.tasks.GaelykPrecompileGroovletTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.gaelyk.tasks.*
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -148,7 +144,7 @@ class GaelykPlugin implements Plugin<Project> {
      * @return Classpath
      */
     private FileCollection createRuntimeClasspath(Project project) {
-        FileCollection runtimeClasspath = project.files(project.sourceSets.main.classesDir)
+        FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
         runtimeClasspath += project.files { new File(getWarConvention(project).webAppDir, 'WEB-INF/lib').listFiles().findAll { it.name.endsWith('.jar') } }
         runtimeClasspath
     }
