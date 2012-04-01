@@ -25,7 +25,7 @@ the base directory of your web application (`war` by default). The following cod
         }
 
         dependencies {
-            classpath 'bmuschko:gradle-gaelyk-plugin:0.3'
+            classpath 'bmuschko:gradle-gaelyk-plugin:0.3.1'
         }
     }
 
@@ -44,6 +44,7 @@ installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
 uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin). `gradle gaelykUninstallPlugin -Pplugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
 * `gaelykListInstalledPlugins`: Shows plugins that have been installed by the `gaelykInstallPlugin` task.
 * `gaelykPrecompileGroovlet`: Precompiles Groovlets to minimize startup costs.
+* `gaelykPrecompileTemplate`: Precompiles Groovy templates to minimize startup costs.
 ## Task Rules
 
 * `gaelykCreateController<ControllerName>`: Creates a Gaelyk controller (Groovlet). Optionally, you can define the directory
