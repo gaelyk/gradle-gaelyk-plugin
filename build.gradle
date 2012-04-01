@@ -1,17 +1,16 @@
 apply plugin: 'groovy'
-
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
-version = '0.3'
+version = '0.3.1'
 
-codeNarcConfigFileName = 'config/codenarc/rules.groovy'
+ext.codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
-    mavenRepo urls: "http://m2repo.spockframework.org/snapshots"
+    mavenRepo url: 'http://m2repo.spockframework.org/snapshots'
 }
 
 dependencies {
@@ -53,5 +52,5 @@ idea {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-6'
+    gradleVersion = '1.0-milestone-9'
 }
