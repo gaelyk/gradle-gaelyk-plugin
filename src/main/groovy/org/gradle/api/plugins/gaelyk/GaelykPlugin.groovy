@@ -92,9 +92,9 @@ class GaelykPlugin implements Plugin<Project> {
     private void configureGaelykPrecompileGroovlet(final Project project) {
         project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
             gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
+            gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { project.compileGroovy.classpath }
             gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/groovy') }
-            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/classes') }
+            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.compileGroovy.destinationDir }
         }
 
         def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
@@ -105,9 +105,9 @@ class GaelykPlugin implements Plugin<Project> {
     private void configureGaelykPrecompileTemplate(final Project project) {
         project.tasks.withType(GaelykPrecompileTemplateTask).whenTaskAdded { GaelykPrecompileTemplateTask gaelykPrecompilTemplateTask ->
             gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
+            gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { project.compileGroovy.classpath }
             gaelykPrecompilTemplateTask.conventionMapping.map("srcDir") { getWarConvention(project).webAppDir }
-            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/classes') }
+            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { project.compileGroovy.destinationDir }
         }
 
         def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
@@ -148,16 +148,5 @@ class GaelykPlugin implements Plugin<Project> {
 
     private WarPluginConvention getWarConvention(Project project) {
         project.convention.getPlugin(WarPluginConvention)
-    }
-
-    /**
-     * Creates classpath from classes directory and runtime classpath.
-     *
-     * @return Classpath
-     */
-    private FileCollection createRuntimeClasspath(Project project) {
-        FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
-        runtimeClasspath += project.files { new File(getWarConvention(project).webAppDir, 'WEB-INF/lib').listFiles().findAll { it.name.endsWith('.jar') } }
-        runtimeClasspath
     }
 }
