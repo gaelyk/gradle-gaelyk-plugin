@@ -94,7 +94,7 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
             gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { project.compileGroovy.classpath }
             gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/groovy') }
-            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { compileGroovy.destinationDir }
+            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.compileGroovy.destinationDir }
         }
 
         def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
@@ -107,7 +107,7 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
             gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { project.compileGroovy.classpath }
             gaelykPrecompilTemplateTask.conventionMapping.map("srcDir") { getWarConvention(project).webAppDir }
-            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { compileGroovy.destinationDir }
+            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { project.compileGroovy.destinationDir }
         }
 
         def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
