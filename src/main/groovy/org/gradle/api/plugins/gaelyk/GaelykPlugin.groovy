@@ -161,7 +161,7 @@ class GaelykPlugin implements Plugin<Project> {
      */
     private FileCollection createRuntimeClasspath(Project project) {
         FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
-        runtimeClasspath += project.files { new File(getWarConvention(project).webAppDir, 'WEB-INF/lib').listFiles().findAll { it.name.endsWith('.jar') } }
+        runtimeClasspath += project.configurations.runtime
         runtimeClasspath
     }
 }
