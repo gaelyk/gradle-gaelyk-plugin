@@ -22,6 +22,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -34,7 +35,7 @@ class GaelykPrecompileGroovletTask extends DefaultTask {
 
     @InputFiles FileCollection groovyClasspath
     @InputFiles FileCollection runtimeClasspath
-    @InputDirectory File srcDir
+    @InputDirectory @SkipWhenEmpty File srcDir
     @OutputDirectory File destDir
 
     @TaskAction

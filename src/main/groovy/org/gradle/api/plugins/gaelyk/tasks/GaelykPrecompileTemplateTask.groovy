@@ -23,6 +23,7 @@ import org.gradle.api.plugins.gaelyk.util.TemplateToScriptConverter
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.TaskAction
 
 import java.util.regex.Matcher
@@ -37,7 +38,7 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
     static final String GROOVY_TEMPLATE_FILE_EXT = '.gtpl'
     @InputFiles FileCollection groovyClasspath
     @InputFiles FileCollection runtimeClasspath
-    @InputDirectory File srcDir
+    @InputDirectory @SkipWhenEmpty File srcDir
     @OutputDirectory File destDir
 
     @TaskAction
