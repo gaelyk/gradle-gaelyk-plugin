@@ -1,18 +1,15 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 version = '0.3.2'
-group = 'bmuschko'
 
 ext.codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
-    mavenRepo url: 'http://m2repo.spockframework.org/snapshots'
 }
 
 dependencies {
@@ -31,7 +28,8 @@ jar {
                    'Implementation-Version': version,
                    'Built-By': System.getProperty("user.name"),
                    'Built-Date': new Date(),
-                   'Built-JDK': System.getProperty("java.version")
+                   'Built-JDK': System.getProperty("java.version"),
+                   'Built-Gradle': gradle.gradleVersion
     }
 }
 
