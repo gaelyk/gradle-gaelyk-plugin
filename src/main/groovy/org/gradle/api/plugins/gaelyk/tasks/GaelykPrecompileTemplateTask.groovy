@@ -20,13 +20,10 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.gaelyk.tools.TempDir
 import org.gradle.api.plugins.gaelyk.util.TemplateToScriptConverter
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.SkipWhenEmpty;
-import org.gradle.api.tasks.TaskAction
 
 import java.util.regex.Matcher
+
+import org.gradle.api.tasks.*
 
 /**
  * Task for precompiling templates located in the webapp directory.
