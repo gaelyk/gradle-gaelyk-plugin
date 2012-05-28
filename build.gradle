@@ -1,9 +1,11 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'maven'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
+group = 'org.gradle.api.plugins'
 version = '0.3.2'
 
 ext.codeNarcConfigFileName = 'config/codenarc/rules.groovy'
@@ -54,3 +56,92 @@ idea {
 task wrapper(type: Wrapper) {
     gradleVersion = '1.0-milestone-9'
 }
+
+task sourcesJar(type: Jar) {
+    description 'An archive of the source code for Maven Central'
+    classifier 'sources'
+    from sourceSets.main.allSource
+}
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+    description 'An archive of the GroovyDocs for Maven Central'
+    classifier 'javadoc'
+    from groovydoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives groovydocJar
+}
+
+def getPomConfiguration() {
+    return {
+        name 'Gradle Gaelyk plugin'
+        description 'Gradle plugin that provides tasks for managing Gaelyk projects.'
+        url 'https://github.com/bmuschko/gradle-gaelyk-plugin'
+        inceptionYear '2011'
+
+        scm {
+            url 'https://github.com/bmuschko/gradle-gaelyk-plugin'
+            connection 'scm:https://bmuschko@github.com/bmuschko/gradle-gaelyk-plugin.git'
+            developerConnection 'scm:git://github.com/bmuschko/gradle-gaelyk-plugin.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+
+        developers {
+            developer {
+                id 'bmuschko'
+                name 'Benjamin Muschko'
+                email 'benjamin.muschko@gmail.com'
+            }
+            developer {
+                id 'vladimirorany'
+                name 'Vladimir Orany'
+            }
+            developer {
+                id 'codeconsole'
+                name 'Scott Murphy'
+                email 'scott@alwaysvip.com'
+            }
+        }
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom.project pomConfiguration
+    }
+}
+
+if(hasProperty('mavenCentralUsername') && hasProperty('mavenCentralPassword')) {
+    apply plugin: 'signing'
+
+    signing {
+        sign configurations.archives
+    }
+
+    uploadArchives {
+        repositories.mavenDeployer {
+            beforeDeployment { deployment ->
+                signing.signPom(deployment)
+            }
+
+            name = 'mavenCentralReleaseDeployer'
+
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
+                authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
+                releases(updatePolicy: 'always')
+            }
+
+            pom.project pomConfiguration
+        }
+    }
+}
+
