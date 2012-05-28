@@ -104,6 +104,7 @@ def getPomConfiguration() {
             developer {
                 id 'vladimirorany'
                 name 'Vladimir Orany'
+                email 'vladimir@orany.cz'
             }
             developer {
                 id 'codeconsole'
