@@ -69,7 +69,7 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
 
     def getTemplateScriptInfo(File tplRoot, File tplFile){
         String relativePath = (tplFile.absolutePath - tplRoot.absolutePath)
-        Matcher m = relativePath =~ "/?(.*)/(.+?)\\.gtpl"
+        Matcher m = relativePath =~ "[/\\\\]?(.*)[/\\\\](.+?)\\.gtpl"
 
         if(m) {
             return [dir: m[0][1] ?: '', file: '$gtpl$' + m[0][2] + '.groovy']
