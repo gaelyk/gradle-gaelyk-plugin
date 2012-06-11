@@ -1,12 +1,22 @@
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'maven'
+apply plugin: 'nexus'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
-version = '0.3.2'
+version = '0.3.3'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.1'
+    }
+}
 
 ext.codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
@@ -15,8 +25,7 @@ repositories {
 }
 
 dependencies {
-    groovy 'org.codehaus.groovy:groovy-all:1.8.6'
-    
+    groovy localGroovy()
     compile gradleApi()
     compile 'com.jcraft:jsch:0.1.44-1'
 
@@ -57,25 +66,8 @@ task wrapper(type: Wrapper) {
     gradleVersion = '1.0-milestone-9'
 }
 
-task sourcesJar(type: Jar) {
-    description 'An archive of the source code for Maven Central'
-    classifier 'sources'
-    from sourceSets.main.allSource
-}
-
-task groovydocJar(type: Jar, dependsOn: groovydoc) {
-    description 'An archive of the GroovyDocs for Maven Central'
-    classifier 'javadoc'
-    from groovydoc.destinationDir
-}
-
-artifacts {
-    archives sourcesJar
-    archives groovydocJar
-}
-
-def getPomConfiguration() {
-    return {
+modifyPom {
+    project {
         name 'Gradle Gaelyk plugin'
         description 'Gradle plugin that provides tasks for managing Gaelyk projects.'
         url 'https://github.com/bmuschko/gradle-gaelyk-plugin'
@@ -114,35 +106,3 @@ def getPomConfiguration() {
         }
     }
 }
-
-install {
-    repositories.mavenInstaller {
-        pom.project pomConfiguration
-    }
-}
-
-if(hasProperty('mavenCentralUsername') && hasProperty('mavenCentralPassword')) {
-    apply plugin: 'signing'
-
-    signing {
-        sign configurations.archives
-    }
-
-    uploadArchives {
-        repositories.mavenDeployer {
-            beforeDeployment { deployment ->
-                signing.signPom(deployment)
-            }
-
-            name = 'mavenCentralReleaseDeployer'
-
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2/') {
-                authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
-                releases(updatePolicy: 'always')
-            }
-
-            pom.project pomConfiguration
-        }
-    }
-}
-

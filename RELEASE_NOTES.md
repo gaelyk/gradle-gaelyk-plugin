@@ -1,3 +1,8 @@
+### Version 0.3.3 (June 10, 2012)
+
+* Update the path matching pattern to work with the Windows path separator - [Issue 11](https://github.com/bmuschko/gradle-gaelyk-plugin/pull/11).
+* Using Gradle Nexus plugin for publishing artifact.
+
 ### Version 0.3.2 (May 28, 2012)
 
 * Remove hard-coded `WEB-INF/classes` as output dir - [Issue 6](https://github.com/bmuschko/gradle-gaelyk-plugin/pull/6).

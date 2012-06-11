@@ -11,21 +11,19 @@ To use the Gaelyk plugin, apply the plugin to your build script:
 
     apply plugin: 'gaelyk'
 
-The plugin JAR and the App Engine tools SDK library need to be defined in the classpath of your build script. You can
-either get the plugin from the GitHub download section or upload it to your local repository. You'll also have to assign
-the base directory of your web application (`war` by default). The following code snippet shows an example:
+he plugin JAR needs to be defined in the classpath of your build script. It is directly available on
+[Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.gradle.api.plugins%22%20AND%20a%3A%22gradle-gaelyk-plugin%22).
+Alternatively, you can download it from GitHub and deploy it to your local repository. You'll also have to assign
+the base directory of your web application (`war` by default). The following code snippet shows an example on how to retrieve
+it from Maven Central:
 
     buildscript {
         repositories {
-            add(new org.apache.ivy.plugins.resolver.URLResolver()) {
-                name = 'GitHub'
-                addArtifactPattern 'http://cloud.github.com/downloads/[organisation]/[module]/[module]-[revision].[ext]'
-            }
             mavenCentral()
         }
 
         dependencies {
-            classpath 'bmuschko:gradle-gaelyk-plugin:0.3.2'
+            classpath 'bmuschko:gradle-gaelyk-plugin:0.3.3'
         }
     }
 
