@@ -1,16 +1,17 @@
 package org.gradle.api.plugins.gaelyk
 
-import spock.lang.Specification
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.gradle.api.Task
-import org.gradle.api.tasks.TaskState
 import org.gradle.GradleLauncher
 import org.gradle.StartParameter
-import org.gradle.initialization.DefaultGradleLauncher
+import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
-import org.gradle.api.invocation.Gradle
 import org.gradle.api.plugins.gae.GaePlugin
+import org.gradle.api.plugins.gae.GaePluginConvention
+import org.gradle.api.tasks.TaskState
+import org.gradle.initialization.DefaultGradleLauncher
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import spock.lang.Specification
 
 class IntegrationSpec extends Specification {
     @Rule final TemporaryFolder dir = new TemporaryFolder()
@@ -61,25 +62,31 @@ class IntegrationSpec extends Specification {
         buildFile << """
             def GaelykPlugin = project.class.classLoader.loadClass('org.gradle.api.plugins.gaelyk.GaelykPlugin')
 
+            apply plugin: 'groovy'
             apply plugin: GaelykPlugin
             apply plugin: 'gae'
 
             dependencies {
                 gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
+                groovy 'org.codehaus.groovy:groovy-all:1.8.6'
             }
 
             repositories {
                 mavenCentral()
             }
 
-            gae {
+            /*gae {
                 downloadSdk = true
-            }
+            }*/
         """
     }
 
     void smoke() {
         given:
-        Gradle result = launcher(GaePlugin.GAE_EXPLODE_WAR).run().gradle
+        Project project = launcher(GaePlugin.GAE_EXPLODE_WAR).run().gradle.rootProject
+
+        expect:
+        GaePluginConvention gaeConvention = project.convention.plugins.gae
+        gaeConvention.downloadSdk == false
     }
 }
