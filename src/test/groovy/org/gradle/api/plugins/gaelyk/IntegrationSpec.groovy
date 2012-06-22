@@ -12,6 +12,12 @@ import org.gradle.initialization.DefaultGradleLauncher
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import org.gradle.BuildResult
+
+import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.plugins.gae.task.GaeRunTask
+import spock.lang.Unroll
+import org.gradle.api.plugins.WarPluginConvention
 
 class IntegrationSpec extends Specification {
     @Rule final TemporaryFolder dir = new TemporaryFolder()
@@ -46,19 +52,32 @@ class IntegrationSpec extends Specification {
         file("build.gradle")
     }
 
-    File file(String path) {
-        def parts = path.split("/")
-        if (parts.size() > 1) {
-            dir.newFolder(* parts[0..-2])
+    File directory(String path) {
+        new File(dir.root, path).with {
+            mkdirs()
+            it
         }
-        dir.newFile(path)
+    }
+
+    File file(String path) {
+        def splitted = path.split('/')
+        def directory = splitted.size() > 1 ? directory(splitted[0..-2].join('/')) : dir.root
+        def file = new File(directory, splitted[-1])
+        file.createNewFile()
+        file
     }
 
     ExecutedTask task(String name) {
         executedTasks.find { it.task.name == name }
     }
 
+    def cleanup() {
+        launcher(GaePlugin.GAE_STOP).run()
+    }
+
     def setup() {
+        directory('src/main/webapp/WEB-INF/groovy')
+
         buildFile << """
             def GaelykPlugin = project.class.classLoader.loadClass('org.gradle.api.plugins.gaelyk.GaelykPlugin')
 
@@ -75,18 +94,62 @@ class IntegrationSpec extends Specification {
                 mavenCentral()
             }
 
-            /*gae {
-                downloadSdk = true
-            }*/
+            gae {
+                stopKey = 'stop'
+                daemon = true
+            }
         """
     }
 
-    void smoke() {
+    private BuildResult runTasks(String... tasks) {
+        BuildResult result = launcher(tasks).run()
+        assert !result.failure
+        result
+    }
+
+    private Project projectForTasks(String... tasks) {
+        runTasks(tasks).gradle.rootProject
+    }
+
+    void 'gae plugin conventions are set up'() {
         given:
-        Project project = launcher(GaePlugin.GAE_EXPLODE_WAR).run().gradle.rootProject
+        Project project = projectForTasks(GaePlugin.GAE_RUN)
+        GaePluginConvention gaeConvention = project.convention.plugins.gae
 
         expect:
-        GaePluginConvention gaeConvention = project.convention.plugins.gae
-        gaeConvention.downloadSdk == false
+        gaeConvention.downloadSdk
+        gaeConvention.optimizeWar
+    }
+
+    void 'war explosion is not performed'() {
+        when:
+        runTasks(GaePlugin.GAE_RUN)
+
+        then:
+        task(GaePlugin.GAE_EXPLODE_WAR).state.skipped
+    }
+
+    @Unroll
+    void "gae run task's war dir is set based on war plugin's convention when #scenario"() {
+        given:
+        if (webAppDir) {
+            directory(webAppDir + '/WEB-INF/groovy')
+            file('build.gradle') << """
+                webAppDirName = '$webAppDir'
+            """
+        }
+
+        when:
+        Project project = projectForTasks(GaePlugin.GAE_RUN)
+        WarPluginConvention warPluginConvention = project.convention.plugins.war
+
+        then:
+        GaeRunTask runTask = task(GaePlugin.GAE_RUN).task
+        runTask.explodedWarDirectory == warPluginConvention.webAppDir
+
+        where:
+        scenario                     | webAppDir
+        'convention is not modified' | null
+        'a custom dir is specified'  | 'customWebapp'
     }
 }

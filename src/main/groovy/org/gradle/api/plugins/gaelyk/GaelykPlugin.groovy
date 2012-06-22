@@ -24,6 +24,11 @@ import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.plugins.gaelyk.tasks.*
+import org.gradle.api.plugins.gae.GaePlugin
+import org.gradle.api.plugins.gae.GaePluginConvention
+import org.gradle.api.execution.TaskExecutionGraph
+import org.gradle.api.plugins.gae.task.GaeExplodeWarTask
+import org.gradle.api.plugins.gae.task.GaeRunTask
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -55,6 +60,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         configureGaelykPrecompileGroovlet(project)
         configureGaelykPrecompileTemplate(project)
+        configureGaePlugin(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -163,5 +169,25 @@ class GaelykPlugin implements Plugin<Project> {
         FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
         runtimeClasspath += project.configurations.runtime
         runtimeClasspath
+    }
+
+    private void configureGaePlugin(Project project) {
+        project.plugins.withType(GaePlugin) {
+            GaePluginConvention gaePluginConvention = project.convention.plugins.gae
+            WarPluginConvention warPluginConvention = project.convention.plugins.war
+
+            gaePluginConvention.with {
+                downloadSdk = true
+                optimizeWar = true
+            }
+
+            project.tasks.withType(GaeExplodeWarTask) { GaeExplodeWarTask task ->
+                task.onlyIf { false }
+            }
+
+            project.tasks.withType(GaeRunTask) { GaeRunTask task ->
+                task.conventionMapping.map('explodedWarDirectory') { warPluginConvention.webAppDir }
+            }
+        }
     }
 }
