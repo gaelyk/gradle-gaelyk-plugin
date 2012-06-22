@@ -18,6 +18,8 @@ import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.plugins.gae.task.GaeRunTask
 import spock.lang.Unroll
 import org.gradle.api.plugins.WarPluginConvention
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.BasePlugin
 
 class IntegrationSpec extends Specification {
     @Rule final TemporaryFolder dir = new TemporaryFolder()
@@ -151,5 +153,17 @@ class IntegrationSpec extends Specification {
         scenario                     | webAppDir
         'convention is not modified' | null
         'a custom dir is specified'  | 'customWebapp'
+    }
+
+    void 'clean tasks also cleans class output directory'() {
+        given:
+            def classOutputDir = 'src/main/webapp/WEB-INF/groovy'
+            directory(classOutputDir)
+
+        when:
+            runTasks(BasePlugin.CLEAN_TASK_NAME)
+
+        then:
+            !new File(dir.root, classOutputDir).exists()
     }
 }

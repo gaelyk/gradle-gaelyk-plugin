@@ -29,6 +29,8 @@ import org.gradle.api.plugins.gae.GaePluginConvention
 import org.gradle.api.execution.TaskExecutionGraph
 import org.gradle.api.plugins.gae.task.GaeExplodeWarTask
 import org.gradle.api.plugins.gae.task.GaeRunTask
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.tasks.Delete
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -61,6 +63,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykPrecompileGroovlet(project)
         configureGaelykPrecompileTemplate(project)
         configureGaePlugin(project)
+        configureCleanTask(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -189,5 +192,10 @@ class GaelykPlugin implements Plugin<Project> {
                 task.conventionMapping.map('explodedWarDirectory') { warPluginConvention.webAppDir }
             }
         }
+    }
+
+    private void configureCleanTask(Project project) {
+        Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
+        task.delete()
     }
 }
