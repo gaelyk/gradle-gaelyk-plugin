@@ -1,25 +1,22 @@
 package org.gradle.api.plugins.gaelyk
 
+import org.gradle.BuildResult
 import org.gradle.GradleLauncher
 import org.gradle.StartParameter
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.WarPluginConvention
 import org.gradle.api.plugins.gae.GaePlugin
 import org.gradle.api.plugins.gae.GaePluginConvention
+import org.gradle.api.plugins.gae.task.GaeRunTask
 import org.gradle.api.tasks.TaskState
 import org.gradle.initialization.DefaultGradleLauncher
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-import org.gradle.BuildResult
-
-import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.plugins.gae.task.GaeRunTask
 import spock.lang.Unroll
-import org.gradle.api.plugins.WarPluginConvention
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.BasePlugin
 
 class IntegrationSpec extends Specification {
     @Rule final TemporaryFolder dir = new TemporaryFolder()
@@ -155,15 +152,26 @@ class IntegrationSpec extends Specification {
         'a custom dir is specified'  | 'customWebapp'
     }
 
-    void 'clean tasks also cleans class output directory'() {
+    @Unroll
+    void 'clean tasks also cleans class output directory when webAppDir is #scenario'() {
         given:
-            def classOutputDir = 'src/main/webapp/WEB-INF/groovy'
-            directory(classOutputDir)
+        if (webAppDir) {
+            file('build.gradle') << """
+                webAppDirName = '$webAppDir'
+            """
+        }
+
+        directory(classOutputDir)
 
         when:
-            runTasks(BasePlugin.CLEAN_TASK_NAME)
+        runTasks(BasePlugin.CLEAN_TASK_NAME)
 
         then:
-            !new File(dir.root, classOutputDir).exists()
+        !new File(dir.root, classOutputDir).exists()
+
+        where:
+        scenario        | classOutputDir                   | webAppDir
+        'specified'     | 'src/main/webapp/WEB-INF/classes' | null
+        'not specified' | 'customWebappDir/WEB-INF/classes' | 'customWebappDir'
     }
 }

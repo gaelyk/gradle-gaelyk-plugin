@@ -184,18 +184,17 @@ class GaelykPlugin implements Plugin<Project> {
                 optimizeWar = true
             }
 
-            project.tasks.withType(GaeExplodeWarTask) { GaeExplodeWarTask task ->
-                task.onlyIf { false }
-            }
-
-            project.tasks.withType(GaeRunTask) { GaeRunTask task ->
-                task.conventionMapping.map('explodedWarDirectory') { warPluginConvention.webAppDir }
+            project.afterEvaluate {
+                gaePluginConvention.warDir = warPluginConvention.webAppDir
             }
         }
     }
 
     private void configureCleanTask(Project project) {
-        Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-        task.delete()
+        project.afterEvaluate {
+            Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
+            WarPluginConvention warPluginConvention = project.convention.plugins.war
+            task.delete(new File(warPluginConvention.webAppDir, 'WEB-INF/classes'))
+        }
     }
 }
