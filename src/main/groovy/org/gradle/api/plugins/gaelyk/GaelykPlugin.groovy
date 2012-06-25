@@ -176,8 +176,8 @@ class GaelykPlugin implements Plugin<Project> {
 
     private void configureGaePlugin(Project project) {
         project.plugins.withType(GaePlugin) {
-            GaePluginConvention gaePluginConvention = project.convention.plugins.gae
-            WarPluginConvention warPluginConvention = project.convention.plugins.war
+            GaePluginConvention gaePluginConvention = project.convention.getPlugin(GaePluginConvention)
+            WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
 
             gaePluginConvention.with {
                 downloadSdk = true
@@ -193,7 +193,7 @@ class GaelykPlugin implements Plugin<Project> {
     private void configureCleanTask(Project project) {
         project.afterEvaluate {
             Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-            WarPluginConvention warPluginConvention = project.convention.plugins.war
+            WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
             task.delete(new File(warPluginConvention.webAppDir, 'WEB-INF/classes'))
         }
     }
