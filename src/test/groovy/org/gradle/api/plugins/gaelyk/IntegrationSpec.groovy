@@ -17,6 +17,7 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
+import org.gradle.api.plugins.JavaPlugin
 
 class IntegrationSpec extends Specification {
     @Rule final TemporaryFolder dir = new TemporaryFolder()
@@ -173,5 +174,18 @@ class IntegrationSpec extends Specification {
         scenario        | classOutputDir                   | webAppDir
         'specified'     | 'src/main/webapp/WEB-INF/classes' | null
         'not specified' | 'customWebappDir/WEB-INF/classes' | 'customWebappDir'
+    }
+
+    void 'main source set output points to classes dir in WEB-INF'() {
+        given:
+        file(('src/main/groovy/A.groovy')) << """
+            class A {}
+        """
+
+        when:
+        runTasks(JavaPlugin.CLASSES_TASK_NAME)
+
+        then:
+        new File(dir.root, 'src/main/webapp/WEB-INF/classes/A.class').exists()
     }
 }
