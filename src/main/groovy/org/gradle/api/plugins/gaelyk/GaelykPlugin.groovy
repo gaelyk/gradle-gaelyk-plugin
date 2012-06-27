@@ -26,11 +26,11 @@ import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.plugins.gaelyk.tasks.*
 import org.gradle.api.plugins.gae.GaePlugin
 import org.gradle.api.plugins.gae.GaePluginConvention
-import org.gradle.api.execution.TaskExecutionGraph
-import org.gradle.api.plugins.gae.task.GaeExplodeWarTask
-import org.gradle.api.plugins.gae.task.GaeRunTask
+
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.Delete
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -48,6 +48,9 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
     static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplate"
 
+    static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
+    static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
+
     @Override
     public void apply(Project project) {
         project.plugins.apply(WarPlugin.class)
@@ -63,6 +66,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykPrecompileGroovlet(project)
         configureGaelykPrecompileTemplate(project)
         configureGaePlugin(project)
+        configureMainSourceSet(project)
         configureCleanTask(project)
     }
 
@@ -102,7 +106,7 @@ class GaelykPlugin implements Plugin<Project> {
         project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
             gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
             gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
-            gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, 'WEB-INF/groovy') }
+            gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, GROOVLET_DIRECTORY_RELATIVE_PATH) }
             gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
         }
 
@@ -174,10 +178,13 @@ class GaelykPlugin implements Plugin<Project> {
         runtimeClasspath
     }
 
+    private WarPluginConvention getWarPluginConvention(Project project) {
+        project.convention.getPlugin(WarPluginConvention)
+    }
+
     private void configureGaePlugin(Project project) {
         project.plugins.withType(GaePlugin) {
             GaePluginConvention gaePluginConvention = project.convention.getPlugin(GaePluginConvention)
-            WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
 
             gaePluginConvention.with {
                 downloadSdk = true
@@ -185,8 +192,21 @@ class GaelykPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                gaePluginConvention.warDir = warPluginConvention.webAppDir
+                gaePluginConvention.warDir = getWarPluginConvention(project).webAppDir
             }
+        }
+    }
+
+    private File getMainSourceSetOutputDirectory(Project project) {
+        WarPluginConvention warPluginConvention = getWarPluginConvention(project)
+        new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
+    }
+
+    private void configureMainSourceSet(Project project) {
+        project.afterEvaluate {
+            JavaPluginConvention javaPluginConvention = project.convention.getPlugin(JavaPluginConvention)
+            SourceSet mainSourceSet = javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+            mainSourceSet.output.classesDir = getMainSourceSetOutputDirectory(project)
         }
     }
 
@@ -194,7 +214,7 @@ class GaelykPlugin implements Plugin<Project> {
         project.afterEvaluate {
             Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
             WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
-            task.delete(new File(warPluginConvention.webAppDir, 'WEB-INF/classes'))
+            task.delete(getMainSourceSetOutputDirectory(project))
         }
     }
 }

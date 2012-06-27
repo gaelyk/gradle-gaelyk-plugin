@@ -19,7 +19,11 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import org.gradle.api.plugins.JavaPlugin
 
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.*
+
 class IntegrationSpec extends Specification {
+    private final static String DEFAULT_WEB_APP_PATH = 'src/main/webapp'
+
     @Rule final TemporaryFolder dir = new TemporaryFolder()
 
     static class ExecutedTask {
@@ -76,7 +80,7 @@ class IntegrationSpec extends Specification {
     }
 
     def setup() {
-        directory('src/main/webapp/WEB-INF/groovy')
+        directory("$DEFAULT_WEB_APP_PATH/$GROOVLET_DIRECTORY_RELATIVE_PATH")
 
         buildFile << """
             def GaelykPlugin = project.class.classLoader.loadClass('org.gradle.api.plugins.gaelyk.GaelykPlugin')
@@ -132,12 +136,7 @@ class IntegrationSpec extends Specification {
     @Unroll
     void "gae run task's war dir is set based on war plugin's convention when #scenario"() {
         given:
-        if (webAppDir) {
-            directory(webAppDir + '/WEB-INF/groovy')
-            file('build.gradle') << """
-                webAppDirName = '$webAppDir'
-            """
-        }
+        specifyWebAppDirAndCreateGroovletsDir(webAppDir)
 
         when:
         Project project = projectForTasks(GaePlugin.GAE_RUN)
@@ -153,15 +152,19 @@ class IntegrationSpec extends Specification {
         'a custom dir is specified'  | 'customWebapp'
     }
 
-    @Unroll
-    void 'clean tasks also cleans class output directory when webAppDir is #scenario'() {
-        given:
+    private void specifyWebAppDirAndCreateGroovletsDir(String webAppDir) {
         if (webAppDir) {
+            directory("$webAppDir/$GROOVLET_DIRECTORY_RELATIVE_PATH")
             file('build.gradle') << """
                 webAppDirName = '$webAppDir'
             """
         }
+    }
 
+    @Unroll
+    void 'clean tasks also cleans class output directory when webAppDir is #scenario'() {
+        given:
+        specifyWebAppDirAndCreateGroovletsDir(webAppDir)
         directory(classOutputDir)
 
         when:
@@ -171,13 +174,15 @@ class IntegrationSpec extends Specification {
         !new File(dir.root, classOutputDir).exists()
 
         where:
-        scenario        | classOutputDir                   | webAppDir
-        'specified'     | 'src/main/webapp/WEB-INF/classes' | null
-        'not specified' | 'customWebappDir/WEB-INF/classes' | 'customWebappDir'
+        scenario        | classOutputDir                                          | webAppDir
+        'not specified' | "$DEFAULT_WEB_APP_PATH/$OUTPUT_DIRECTORY_RELATIVE_PATH" | null
+        'specified'     | "customWebappDir/$OUTPUT_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
     }
 
-    void 'main source set output points to classes dir in WEB-INF'() {
+    @Unroll
+    void 'main source set output points to classes dir in WEB-INF when webAppDir is #scenario'() {
         given:
+        specifyWebAppDirAndCreateGroovletsDir(webAppDir)
         file(('src/main/groovy/A.groovy')) << """
             class A {}
         """
@@ -186,6 +191,11 @@ class IntegrationSpec extends Specification {
         runTasks(JavaPlugin.CLASSES_TASK_NAME)
 
         then:
-        new File(dir.root, 'src/main/webapp/WEB-INF/classes/A.class').exists()
+        new File(dir.root, "$classOutputDir/A.class").exists()
+
+        where:
+        scenario        | classOutputDir                                          | webAppDir
+        'not specified' | "$DEFAULT_WEB_APP_PATH/$OUTPUT_DIRECTORY_RELATIVE_PATH" | null
+        'specified'     | "customWebappDir/$OUTPUT_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
     }
 }
