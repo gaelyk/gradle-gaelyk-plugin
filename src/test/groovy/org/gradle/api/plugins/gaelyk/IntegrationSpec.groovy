@@ -198,4 +198,12 @@ class IntegrationSpec extends Specification {
         'not specified' | "$DEFAULT_WEB_APP_PATH/$OUTPUT_DIRECTORY_RELATIVE_PATH" | null
         'specified'     | "customWebappDir/$OUTPUT_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
     }
+
+    void 'gaelykCopyRuntimeLibraries is executed before gaeRun'() {
+        when:
+        runTasks(GaePlugin.GAE_RUN)
+
+        then:
+        task(GAELYK_COPY_RUNTIME_LIBRARIES).state.executed
+    }
 }

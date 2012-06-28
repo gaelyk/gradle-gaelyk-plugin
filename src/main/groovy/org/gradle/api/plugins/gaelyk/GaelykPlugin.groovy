@@ -31,6 +31,8 @@ import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.Delete
 import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.Task
+import org.gradle.api.DefaultTask
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -47,6 +49,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
     static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
     static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplate"
+    static final String GAELYK_COPY_RUNTIME_LIBRARIES = "gaelykCopyRuntimeLibraries"
 
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
@@ -68,6 +71,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaePlugin(project)
         configureMainSourceSet(project)
         configureCleanTask(project)
+        configureGaelykCopyRuntimeLibraries(project)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -215,6 +219,17 @@ class GaelykPlugin implements Plugin<Project> {
             Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
             WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
             task.delete(getMainSourceSetOutputDirectory(project))
+        }
+    }
+
+    private void configureGaelykCopyRuntimeLibraries(Project project) {
+        Task gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, DefaultTask)
+        gaelykInstallPluginTask.description = "Installs Gaelyk plugin."
+        gaelykInstallPluginTask.group = GAELYK_GROUP
+
+
+        project.plugins.withType(GaePlugin) {
+
         }
     }
 }
