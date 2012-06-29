@@ -224,12 +224,12 @@ class GaelykPlugin implements Plugin<Project> {
 
     private void configureGaelykCopyRuntimeLibraries(Project project) {
         Task gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, DefaultTask)
-        gaelykInstallPluginTask.description = "Installs Gaelyk plugin."
-        gaelykInstallPluginTask.group = GAELYK_GROUP
+        gaelykCopyRuntimeLibraries.description = "Synchronises runtime libraries in webapp directory."
+        gaelykCopyRuntimeLibraries.group = GAELYK_GROUP
 
 
         project.plugins.withType(GaePlugin) {
-
+            project.tasks.findByName(GaePlugin.GAE_RUN).dependsOn gaelykCopyRuntimeLibraries
         }
     }
 }
