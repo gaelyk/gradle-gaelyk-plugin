@@ -17,22 +17,22 @@ package org.gradle.api.plugins.gaelyk
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.plugins.WarPlugin
 import org.gradle.api.plugins.WarPluginConvention
+import org.gradle.api.plugins.gae.GaePlugin
+import org.gradle.api.plugins.gae.GaePluginConvention
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
-import org.gradle.api.plugins.gaelyk.tasks.*
-import org.gradle.api.plugins.gae.GaePlugin
-import org.gradle.api.plugins.gae.GaePluginConvention
-
-import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.tasks.Delete
-import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.Task
-import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Sync
+import org.gradle.api.plugins.gaelyk.tasks.*
+import org.gradle.api.plugins.JavaPlugin
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -53,6 +53,7 @@ class GaelykPlugin implements Plugin<Project> {
 
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
+    static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
 
     @Override
     public void apply(Project project) {
@@ -182,10 +183,6 @@ class GaelykPlugin implements Plugin<Project> {
         runtimeClasspath
     }
 
-    private WarPluginConvention getWarPluginConvention(Project project) {
-        project.convention.getPlugin(WarPluginConvention)
-    }
-
     private void configureGaePlugin(Project project) {
         project.plugins.withType(GaePlugin) {
             GaePluginConvention gaePluginConvention = project.convention.getPlugin(GaePluginConvention)
@@ -196,13 +193,13 @@ class GaelykPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                gaePluginConvention.warDir = getWarPluginConvention(project).webAppDir
+                gaePluginConvention.warDir = getWarConvention(project).webAppDir
             }
         }
     }
 
     private File getMainSourceSetOutputDirectory(Project project) {
-        WarPluginConvention warPluginConvention = getWarPluginConvention(project)
+        WarPluginConvention warPluginConvention = getWarConvention(project)
         new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
     }
 
@@ -217,19 +214,24 @@ class GaelykPlugin implements Plugin<Project> {
     private void configureCleanTask(Project project) {
         project.afterEvaluate {
             Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-            WarPluginConvention warPluginConvention = project.convention.getPlugin(WarPluginConvention)
             task.delete(getMainSourceSetOutputDirectory(project))
         }
     }
 
     private void configureGaelykCopyRuntimeLibraries(Project project) {
-        Task gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, DefaultTask)
+        Sync gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, Sync)
         gaelykCopyRuntimeLibraries.description = "Synchronises runtime libraries in webapp directory."
         gaelykCopyRuntimeLibraries.group = GAELYK_GROUP
+        gaelykCopyRuntimeLibraries.from project.configurations.findByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
 
 
         project.plugins.withType(GaePlugin) {
             project.tasks.findByName(GaePlugin.GAE_RUN).dependsOn gaelykCopyRuntimeLibraries
+        }
+
+        project.afterEvaluate {
+            def libDirectory = new File(getWarConvention(project).webAppDir, LIBRARIES_DIRECTORY_RELATIVE_PATH)
+            gaelykCopyRuntimeLibraries.into libDirectory
         }
     }
 }

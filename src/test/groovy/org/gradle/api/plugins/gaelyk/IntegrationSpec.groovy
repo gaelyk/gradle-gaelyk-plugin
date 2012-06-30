@@ -20,6 +20,7 @@ import spock.lang.Unroll
 import org.gradle.api.plugins.JavaPlugin
 
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.*
+import org.gradle.api.artifacts.Configuration
 
 class IntegrationSpec extends Specification {
     private final static String DEFAULT_WEB_APP_PATH = 'src/main/webapp'
@@ -46,7 +47,6 @@ class IntegrationSpec extends Specification {
 
             void afterExecute(Task task, TaskState taskState) {
                 executedTasks.last().state = taskState
-                taskState.metaClass.upToDate = taskState.skipMessage == "UP-TO-DATE"
             }
         })
         launcher
@@ -92,6 +92,7 @@ class IntegrationSpec extends Specification {
             dependencies {
                 gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
                 groovy 'org.codehaus.groovy:groovy-all:1.8.6'
+                compile 'org.gaelyk:gaelyk:1.2'
             }
 
             repositories {
@@ -155,7 +156,7 @@ class IntegrationSpec extends Specification {
     private void specifyWebAppDirAndCreateGroovletsDir(String webAppDir) {
         if (webAppDir) {
             directory("$webAppDir/$GROOVLET_DIRECTORY_RELATIVE_PATH")
-            file('build.gradle') << """
+            buildFile << """
                 webAppDirName = '$webAppDir'
             """
         }
@@ -205,5 +206,24 @@ class IntegrationSpec extends Specification {
 
         then:
         task(GAELYK_COPY_RUNTIME_LIBRARIES).state.executed
+    }
+    @Unroll
+    void 'gaelykCopyRuntimeLibraries synchronises libs dir when webAppDir is #scenario'() {
+        given:
+        specifyWebAppDirAndCreateGroovletsDir(webAppDir)
+
+        when:
+        def project = projectForTasks(GAELYK_COPY_RUNTIME_LIBRARIES)
+        def libsDirFiles = new File(dir.root, libsDir).listFiles()
+        Configuration runtimeConfiguration = project.configurations.findByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
+
+        then:
+        libsDirFiles
+        libsDirFiles.size() == runtimeConfiguration.files.size()
+
+        where:
+        scenario        | libsDir                                                    | webAppDir
+        'not specified' | "$DEFAULT_WEB_APP_PATH/$LIBRARIES_DIRECTORY_RELATIVE_PATH" | null
+        'specified'     | "customWebappDir/$LIBRARIES_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
     }
 }
