@@ -22,14 +22,13 @@ ext.codeNarcConfigFileName = 'config/codenarc/rules.groovy'
 
 repositories {
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
     groovy localGroovy()
     compile gradleApi()
     compile 'com.jcraft:jsch:0.1.44-1'
-    compile 'org.gradle.api.plugins:gradle-gae-plugin:0.7.3-SNAPSHOT'
+    compile 'org.gradle.api.plugins:gradle-gae-plugin:0.7.3'
 
     testCompile "org.spockframework:spock-core:0.6-groovy-1.8",
                 "junit:junit:4.+"
