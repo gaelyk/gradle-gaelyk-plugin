@@ -62,7 +62,7 @@ abstract class IntegrationSpec extends Specification {
     }
 
     def setup() {
-        directory("$DEFAULT_WEB_APP_PATH/$org.gradle.api.plugins.gaelyk.GaelykPlugin.GROOVLET_DIRECTORY_RELATIVE_PATH")
+        directory("$DEFAULT_WEB_APP_PATH/$GROOVLET_DIRECTORY_RELATIVE_PATH")
 
         buildFile << """
             def GaelykPlugin = project.class.classLoader.loadClass('org.gradle.api.plugins.gaelyk.GaelykPlugin')
