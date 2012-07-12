@@ -56,7 +56,8 @@ class GaelykPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
-        project.plugins.apply(WarPlugin.class)
+        project.plugins.apply(GaePlugin)
+
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
 

@@ -106,5 +106,4 @@ modifyPom {
             }
         }
     }
-    dependencies.findAll { it.groupId == 'org.gradle.api.plugins' && it.artifactId == 'gradle-gae-plugin' }*.scope = 'provided'
 }

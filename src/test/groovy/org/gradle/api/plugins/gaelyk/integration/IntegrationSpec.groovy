@@ -73,7 +73,10 @@ abstract class IntegrationSpec extends Specification {
             dependencies {
                 groovy 'org.codehaus.groovy:groovy-all:1.8.6'
                 compile 'org.gaelyk:gaelyk:1.2'
+                gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
             }
+
+
 
             repositories {
                 mavenCentral()
