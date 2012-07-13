@@ -10,10 +10,6 @@ import spock.lang.Unroll
 import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 
 class GaePluginIntegrationSpec extends IntegrationSpec {
-    def cleanup() {
-        launcher(GaePlugin.GAE_STOP).run()
-    }
-
     def setup() {
         buildFile << """
             gae {
@@ -21,6 +17,10 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
                 daemon = true
             }
         """
+    }
+
+    private void stopServer() {
+        launcher(GaePlugin.GAE_STOP).run()
     }
 
     private void skipWarOptimization() {
@@ -71,6 +71,9 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
         then:
         GaeRunTask runTask = task(GaePlugin.GAE_RUN).task
         runTask.explodedWarDirectory == warPluginConvention.webAppDir
+
+        cleanup:
+        stopServer()
 
         where:
         scenario                     | webAppDir
