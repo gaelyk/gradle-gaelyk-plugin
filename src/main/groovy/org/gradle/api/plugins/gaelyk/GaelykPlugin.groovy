@@ -32,6 +32,9 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.Sync
 import org.gradle.api.plugins.gaelyk.tasks.*
 import org.gradle.api.plugins.JavaPlugin
+import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
+import org.gradle.api.plugins.gae.task.GaeRunTask
+import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -69,6 +72,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         configureGaelykPrecompileGroovlet(project)
         configureGaelykPrecompileTemplate(project)
+        configureFatJarPlugin(project)
         configureGaePlugin(project)
         configureMainSourceSet(project)
         configureCleanTask(project)
@@ -181,6 +185,15 @@ class GaelykPlugin implements Plugin<Project> {
         FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
         runtimeClasspath += project.configurations.runtime
         runtimeClasspath
+    }
+
+    private void configureFatJarPlugin(Project project) {
+        [FATJAR_PREPARE_FILES, FATJAR_FAT_JAR, FATJAR_SLIM_WAR].each { taskName ->
+            project.tasks.findByName(taskName).onlyIf {
+                GaeRunTask gaeRunTask = project.tasks.findByName(GAE_RUN)
+                !project.gradle.taskGraph.hasTask(gaeRunTask)
+            }
+        }
     }
 
     private void configureGaePlugin(Project project) {

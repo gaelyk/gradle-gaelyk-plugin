@@ -23,14 +23,6 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
         launcher(GaePlugin.GAE_STOP).run()
     }
 
-    private void skipWarOptimization() {
-        buildFile << """
-            gae {
-                optimizeWar = false
-            }
-        """
-    }
-
     void 'gae plugin is applied to the project'() {
         expect:
         launcher(CLASSES_TASK_NAME).buildAnalysis.gradle.rootProject.plugins.hasPlugin(GaePlugin)
@@ -48,7 +40,6 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
 
     void 'war explosion is not performed'() {
         given:
-        skipWarOptimization()
         skipGaeRun()
 
         when:
@@ -61,7 +52,6 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
     @Unroll
     void "gae run task's war dir is set based on war plugin's convention when #scenario"() {
         given:
-        skipWarOptimization()
         specifyWebAppDirAndCreateGroovletsDir(webAppDir)
 
         when:
@@ -83,7 +73,6 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
 
     void 'gaelykCopyRuntimeLibraries is executed before gaeRun'() {
         given:
-        skipWarOptimization()
         skipGaeRun()
 
         when:
