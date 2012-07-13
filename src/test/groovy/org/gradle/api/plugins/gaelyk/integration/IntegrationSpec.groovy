@@ -76,12 +76,16 @@ abstract class IntegrationSpec extends Specification {
                 gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
             }
 
-
-
             repositories {
                 mavenCentral()
             }
         """
+    }
+
+    protected skipGaeRun() {
+        buildFile << '''
+            gaeRun.onlyIf { false }
+        '''
     }
 
     protected BuildResult runTasks(String... tasks) {
