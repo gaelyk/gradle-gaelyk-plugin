@@ -3,9 +3,10 @@
 ![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
 
 The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It applies
-[Gradle GAE plugin](https://github.com/bmuschko/gradle-gae-plugin) to the project. It changes the configuration of 
-[FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set to better fit Gaelyk
-application needs. Finally it adds some Gaelyk specific tasks.
+[Gradle GAE plugin](https://github.com/bmuschko/gradle-gae-plugin) and 
+[Groovy plugin](http://www.gradle.org/docs/current/userguide/groovy_plugin.html) to the project. It changes the 
+configuration of [FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set 
+to better fit Gaelyk application needs. Finally it adds some Gaelyk specific tasks.
 
 
 ## Usage
@@ -30,8 +31,6 @@ it from Maven Central:
         }
     }
 
-    webAppDirName = new File("war")
-
 ## Integration with other Gradle plugins
 * Gaelyk plugin uses `webAppDir` convention property of [War plugin](http://gradle.org/docs/current/userguide/war_plugin.html)
 (which is applied to the project by GAE plugin) to determine the location of project's webapp dir. The default location 
@@ -43,9 +42,23 @@ is `src/main/webapp` and can be changed using `webAppDirName` convention propert
 * FATJar plugin's tasks are skipped when starting development server as the server works against webapp dir
 
 ## Modifications to project configuration
-* Main source set output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development
+Main source set output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development
 server against webapp dir which in turn enables reloading of changes to groovlets and templayes code 
-without restarting the server
+without restarting the server.
+
+## Dependencies you need to specify
+When applying gaelyk plugin to your project remember that you have to specify the folowing dependencies:
+* `groovy` - because Groovy plugin requires it
+* `gaeSdk` - because GAE plugin requires it
+
+You will be developing a Gaelyk application so you probably also want to add a `compile` dependency on Gaelyk. The dependencies
+section of your build might look like this:
+
+    dependencies {
+        groovy 'org.codehaus.groovy:groovy-all:1.8.6'
+        gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
+        compile 'org.gaelyk:gaelyk:1.2'
+    }
 
 ## Tasks
 * `gaelykListPlugins`: Shows all available plugins from the Gaelyk plugins catalogue.
