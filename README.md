@@ -8,6 +8,9 @@ The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) proj
 configuration of [FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set 
 to better fit Gaelyk application needs. Finally it adds some Gaelyk specific tasks.
 
+Gaelyk plugin applies Gaelyk plugin to provide tasks for running the application, uploading it to GAE etc. - see
+[Gradle GAE plugin's documentation](https://github.com/bmuschko/gradle-gae-plugin) for details.
+
 
 ## Usage
 
@@ -17,8 +20,7 @@ To use the Gaelyk plugin, apply the plugin to your build script:
 
 The plugin JAR needs to be defined in the classpath of your build script. It is directly available on
 [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.gradle.api.plugins%22%20AND%20a%3A%22gradle-gaelyk-plugin%22).
-Alternatively, you can download it from GitHub and deploy it to your local repository. You'll also have to assign
-the base directory of your web application (`war` by default). The following code snippet shows an example on how to retrieve
+Alternatively, you can download it from GitHub and deploy it to your local repository. The following code snippet shows an example on how to retrieve
 it from Maven Central:
 
     buildscript {
@@ -51,7 +53,7 @@ When applying gaelyk plugin to your project remember that you have to specify th
 * `groovy` - because Groovy plugin requires it
 * `gaeSdk` - because GAE plugin requires it
 
-You will be developing a Gaelyk application so you probably also want to add a `compile` dependency on Gaelyk. The dependencies
+To be able to develop a Gaelyk application you also need to add a `compile` dependency on Gaelyk. The dependencies
 section of your build might look like this:
 
     dependencies {
