@@ -35,6 +35,7 @@ import org.gradle.api.plugins.JavaPlugin
 import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
 import org.gradle.api.plugins.gae.task.GaeRunTask
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
+import org.gradle.api.plugins.GroovyPlugin
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -59,6 +60,7 @@ class GaelykPlugin implements Plugin<Project> {
 
     @Override
     public void apply(Project project) {
+        project.plugins.apply(GroovyPlugin)
         project.plugins.apply(GaePlugin)
 
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()

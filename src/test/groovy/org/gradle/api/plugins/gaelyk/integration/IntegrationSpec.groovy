@@ -67,7 +67,6 @@ abstract class IntegrationSpec extends Specification {
         buildFile << """
             def GaelykPlugin = project.class.classLoader.loadClass('org.gradle.api.plugins.gaelyk.GaelykPlugin')
 
-            apply plugin: 'groovy'
             apply plugin: GaelykPlugin
 
             dependencies {
