@@ -2,8 +2,11 @@
 
 ![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
 
-The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It extends
-the War plugin.
+The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It applies
+[Gradle GAE plugin](https://github.com/bmuschko/gradle-gae-plugin) to the project. It changes the configuration of 
+[FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set to better fit Gaelyk
+application needs. Finally it adds some Gaelyk specific tasks.
+
 
 ## Usage
 
@@ -11,7 +14,7 @@ To use the Gaelyk plugin, apply the plugin to your build script:
 
     apply plugin: 'gaelyk'
 
-he plugin JAR needs to be defined in the classpath of your build script. It is directly available on
+The plugin JAR needs to be defined in the classpath of your build script. It is directly available on
 [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.gradle.api.plugins%22%20AND%20a%3A%22gradle-gaelyk-plugin%22).
 Alternatively, you can download it from GitHub and deploy it to your local repository. You'll also have to assign
 the base directory of your web application (`war` by default). The following code snippet shows an example on how to retrieve
@@ -28,6 +31,21 @@ it from Maven Central:
     }
 
     webAppDirName = new File("war")
+
+## Integration with other Gradle plugins
+* Gaelyk plugin uses `webAppDir` convention property of [War plugin](http://gradle.org/docs/current/userguide/war_plugin.html)
+(which is applied to the project by GAE plugin) to determine the location of project's webapp dir. The default location 
+is `src/main/webapp` and can be changed using `webAppDirName` convention property of War plugin.
+* GAE plugin's `warDir` convention property is set to the value of `webAppDir` War plugin's property. Please use
+`webAppDirName` convention property of War plugin to change `warDir` property of GAE plugin.
+* GAE plugin's `dowloadSdk` property is set to true by default
+* GAE plugin's `optimizeWar` property is set to true by default
+* FATJar plugin's tasks are skipped when starting development server as the server works against webapp dir
+
+## Modifications to project configuration
+* Main source set output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development
+server against webapp dir which in turn enables reloading of changes to groovlets and templayes code 
+without restarting the server
 
 ## Tasks
 * `gaelykListPlugins`: Shows all available plugins from the Gaelyk plugins catalogue.
