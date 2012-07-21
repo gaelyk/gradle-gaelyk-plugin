@@ -1,3 +1,8 @@
+### Version 0.4 (July 21, 2012)
+
+* Add common boilerplate code from Gaelyk template project - [Issue 13](https://github.com/bmuschko/gradle-gaelyk-plugin/pull/13).
+* Upgrade to Gradle Wrapper 1.0.
+
 ### Version 0.3.3 (June 10, 2012)
 
 * Update the path matching pattern to work with the Windows path separator - [Issue 11](https://github.com/bmuschko/gradle-gaelyk-plugin/pull/11).

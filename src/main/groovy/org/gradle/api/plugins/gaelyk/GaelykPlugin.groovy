@@ -18,24 +18,20 @@ package org.gradle.api.plugins.gaelyk
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
-import org.gradle.api.plugins.BasePlugin
-import org.gradle.api.plugins.JavaPluginConvention
-import org.gradle.api.plugins.WarPlugin
-import org.gradle.api.plugins.WarPluginConvention
 import org.gradle.api.plugins.gae.GaePlugin
 import org.gradle.api.plugins.gae.GaePluginConvention
+import org.gradle.api.plugins.gae.task.GaeRunTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.Sync
+import org.gradle.api.plugins.*
 import org.gradle.api.plugins.gaelyk.tasks.*
-import org.gradle.api.plugins.JavaPlugin
+
 import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
-import org.gradle.api.plugins.gae.task.GaeRunTask
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
-import org.gradle.api.plugins.GroovyPlugin
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
