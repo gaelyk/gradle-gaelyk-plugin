@@ -38,7 +38,7 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
         gaeConvention.optimizeWar
     }
 
-    void 'war explosion is not performed'() {
+    void 'war explosion is not performed in rad mode'() {
         given:
         skipGaeRun()
 
@@ -47,6 +47,22 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
 
         then:
         task(GaePlugin.GAE_EXPLODE_WAR).state.skipped
+    }
+
+    void 'war explosion is performed in non-rad mode'() {
+        given:
+        skipGaeRun()
+        buildFile << """
+            gaelyk {
+                rad = false
+            }
+        """
+
+        when:
+        runTasks(GaePlugin.GAE_RUN)
+
+        then:
+        task(GaePlugin.GAE_EXPLODE_WAR).state.didWork
     }
 
     @Unroll

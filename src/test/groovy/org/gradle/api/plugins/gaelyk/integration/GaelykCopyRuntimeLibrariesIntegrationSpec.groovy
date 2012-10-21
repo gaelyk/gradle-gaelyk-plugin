@@ -5,6 +5,7 @@ import org.gradle.api.plugins.JavaPlugin
 import spock.lang.Unroll
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getLIBRARIES_DIRECTORY_RELATIVE_PATH
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.GAELYK_COPY_RUNTIME_LIBRARIES
 
 class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
     @Unroll
@@ -26,5 +27,20 @@ class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
         scenario        | libsDir                                                    | webAppDir
         'not specified' | "$DEFAULT_WEB_APP_PATH/$LIBRARIES_DIRECTORY_RELATIVE_PATH" | null
         'specified'     | "customWebappDir/$LIBRARIES_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
+    }
+
+    void 'gaelykCopyRuntimeLibraries is skipped if running in non-rad mode'() {
+        given:
+        buildFile << """
+            gaelyk {
+                rad = false
+            }
+        """
+
+        when:
+        runTasks(GAELYK_COPY_RUNTIME_LIBRARIES)
+
+        then:
+        task(GAELYK_COPY_RUNTIME_LIBRARIES).state.skipped
     }
 }
