@@ -70,11 +70,11 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         configureGaelykPrecompileGroovlet(project)
         configureGaelykPrecompileTemplate(project)
-        configureFatJarPlugin(project)
-        configureGaePlugin(project)
-        configureMainSourceSet(project)
-        configureCleanTask(project)
-        configureGaelykCopyRuntimeLibraries(project)
+        configureFatJarPlugin(project, gaelykPluginConvention)
+        configureGaePlugin(project, gaelykPluginConvention)
+        configureMainSourceSet(project, gaelykPluginConvention)
+        configureCleanTask(project, gaelykPluginConvention)
+        configureGaelykCopyRuntimeLibraries(project, gaelykPluginConvention)
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -120,6 +120,7 @@ class GaelykPlugin implements Plugin<Project> {
         def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
         gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
         gaelykPrecompileGroovletTask.group = GAELYK_GROUP
+        gaelykPrecompileGroovletTask.onlyIf { !gaeRunIsInGraph(project) }
         
         project.tasks.classes.dependsOn(gaelykPrecompileGroovletTask)
     }
@@ -135,6 +136,7 @@ class GaelykPlugin implements Plugin<Project> {
         def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
         gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
         gaelykPrecompileTemplateTask.group = GAELYK_GROUP
+        gaelykPrecompileTemplateTask.onlyIf { !gaeRunIsInGraph(project) }
         
         project.tasks.classes.dependsOn(gaelykPrecompileTemplateTask)
     }
@@ -185,16 +187,18 @@ class GaelykPlugin implements Plugin<Project> {
         runtimeClasspath
     }
 
-    private void configureFatJarPlugin(Project project) {
+    private void configureFatJarPlugin(Project project, GaelykPluginConvention pluginConvention) {
         [FATJAR_PREPARE_FILES, FATJAR_FAT_JAR, FATJAR_SLIM_WAR].each { taskName ->
-            project.tasks.findByName(taskName).onlyIf {
-                GaeRunTask gaeRunTask = project.tasks.findByName(GAE_RUN)
-                !project.gradle.taskGraph.hasTask(gaeRunTask)
-            }
+            project.tasks.findByName(taskName).onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
         }
     }
 
-    private void configureGaePlugin(Project project) {
+    private def gaeRunIsInGraph(Project project) {
+        GaeRunTask gaeRunTask = project.tasks.findByName(GAE_RUN)
+        project.gradle.taskGraph.hasTask(gaeRunTask)
+    }
+
+    private void configureGaePlugin(Project project, GaelykPluginConvention pluginConvention) {
         project.plugins.withType(GaePlugin) {
             GaePluginConvention gaePluginConvention = project.convention.getPlugin(GaePluginConvention)
 
@@ -204,37 +208,47 @@ class GaelykPlugin implements Plugin<Project> {
             }
 
             project.afterEvaluate {
-                gaePluginConvention.warDir = getWarConvention(project).webAppDir
+                if (pluginConvention.rad) {
+                    gaePluginConvention.warDir = getWarConvention(project).webAppDir
+                }
             }
         }
     }
 
-    private File getMainSourceSetOutputDirectory(Project project) {
-        WarPluginConvention warPluginConvention = getWarConvention(project)
-        new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
-    }
-
-    private void configureMainSourceSet(Project project) {
-        project.afterEvaluate {
-            JavaPluginConvention javaPluginConvention = project.convention.getPlugin(JavaPluginConvention)
-            SourceSet mainSourceSet = javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            mainSourceSet.output.classesDir = getMainSourceSetOutputDirectory(project)
+    private File getMainSourceSetOutputDirectory(Project project, GaelykPluginConvention pluginConvention) {
+        if (pluginConvention.rad) {
+            WarPluginConvention warPluginConvention = getWarConvention(project)
+            new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
+        } else {
+            getMainSourceSet(project).output.classesDir
         }
     }
 
-    private void configureCleanTask(Project project) {
+    private SourceSet getMainSourceSet(Project project) {
+        JavaPluginConvention javaPluginConvention = project.convention.getPlugin(JavaPluginConvention)
+        SourceSet mainSourceSet = javaPluginConvention.sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+        return mainSourceSet
+    }
+
+    private void configureMainSourceSet(Project project, GaelykPluginConvention pluginConvention) {
+        project.afterEvaluate {
+            getMainSourceSet(project).output.classesDir = getMainSourceSetOutputDirectory(project, pluginConvention)
+        }
+    }
+
+    private void configureCleanTask(Project project, GaelykPluginConvention pluginConvention) {
         project.afterEvaluate {
             Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-            task.delete(getMainSourceSetOutputDirectory(project))
+            task.delete(getMainSourceSetOutputDirectory(project, pluginConvention))
         }
     }
 
-    private void configureGaelykCopyRuntimeLibraries(Project project) {
+    private void configureGaelykCopyRuntimeLibraries(Project project, GaelykPluginConvention pluginConvention) {
         Sync gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, Sync)
         gaelykCopyRuntimeLibraries.description = "Synchronises runtime libraries in webapp directory."
         gaelykCopyRuntimeLibraries.group = GAELYK_GROUP
         gaelykCopyRuntimeLibraries.from project.configurations.findByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
-
+        gaelykCopyRuntimeLibraries.onlyIf { pluginConvention.rad }
 
         project.plugins.withType(GaePlugin) {
             project.tasks.findByName(GaePlugin.GAE_RUN).dependsOn gaelykCopyRuntimeLibraries

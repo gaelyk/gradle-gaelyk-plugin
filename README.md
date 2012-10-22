@@ -33,20 +33,30 @@ it from Maven Central:
         }
     }
 
+## Convention properties
+
+The Gaelyk plugin defines the following convention properties in the `gaelyk` closure:
+
+* `rad`: specifies if the application should be started in Rapid Application Development mode when using `gaeRun` task (defaults to true).
+ If you run in RAD mode any changes made to your groovlets, templates and static resources (but not to classes) in the source directory will be
+ instantly visible on a page reload. The downside is that your source directory is polluted with jars in 'WEB-INF/lib' and compiled
+ classes in 'WEB-INF/classes'. If you wish to avoid that set `rad` property to false. Doing so will mean that application's war
+ file will be exploded in `build/exploded-war` directory which in turn will be used as the application root when running locally (with `gaeRun`).
+
 ## Integration with other Gradle plugins
 * Gaelyk plugin uses `webAppDir` convention property of [War plugin](http://gradle.org/docs/current/userguide/war_plugin.html)
 (which is applied to the project by GAE plugin) to determine the location of project's webapp dir. The default location 
 is `src/main/webapp` and can be changed using `webAppDirName` convention property of War plugin.
-* GAE plugin's `warDir` convention property is set to the value of `webAppDir` War plugin's property. Please use
-`webAppDirName` convention property of War plugin to change `warDir` property of GAE plugin.
+* When running in RAD mode (see [conventions](#convention-properties) for details) GAE plugin's `warDir` convention property is set to the value of
+`webAppDir` War plugin's property. Please use `webAppDirName` convention property of War plugin to change `warDir` property of GAE plugin.
 * GAE plugin's `dowloadSdk` property is set to true by default
 * GAE plugin's `optimizeWar` property is set to true by default
-* FATJar plugin's tasks are skipped when starting development server as the server works against webapp dir
+* FATJar plugin's tasks are skipped when running in RAD mode and starting development server as the server works against webapp dir
 
 ## Modifications to project configuration
-Main source set output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development
-server against webapp dir which in turn enables reloading of changes to groovlets and templayes code 
-without restarting the server.
+When running in RAD mode (see [conventions](#convention-properties) for details) main source set output directory is set
+to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development server against webapp dir which in turn
+enables reloading of changes to groovlets and templates code without restarting the server.
 
 ## Dependencies you need to specify
 When applying gaelyk plugin to your project remember that you have to specify the folowing dependencies:

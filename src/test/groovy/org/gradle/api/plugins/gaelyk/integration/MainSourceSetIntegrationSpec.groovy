@@ -45,4 +45,22 @@ class MainSourceSetIntegrationSpec extends IntegrationSpec {
         'specified'     | "customWebappDir/$OUTPUT_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
     }
 
+    void 'main source set output is not modified when running in non-rad mode'() {
+        given:
+        file(('src/main/groovy/A.groovy')) << """
+            class A {}
+        """
+        buildFile << """
+            gaelyk {
+                rad = false
+            }
+        """
+
+        when:
+        runTasks(JavaPlugin.CLASSES_TASK_NAME)
+
+        then:
+        !new File(dir.root, "$DEFAULT_WEB_APP_PATH/$OUTPUT_DIRECTORY_RELATIVE_PATH").exists()
+    }
+
 }

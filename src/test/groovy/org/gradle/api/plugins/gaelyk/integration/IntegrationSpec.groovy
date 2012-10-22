@@ -61,6 +61,10 @@ abstract class IntegrationSpec extends Specification {
         executedTasks.find { it.task.name == name }
     }
 
+    protected Collection<ExecutedTask> tasks(String... names) {
+        executedTasks.findAll { it.task.name in names }
+    }
+
     def setup() {
         directory("$DEFAULT_WEB_APP_PATH/$GROOVLET_DIRECTORY_RELATIVE_PATH")
 

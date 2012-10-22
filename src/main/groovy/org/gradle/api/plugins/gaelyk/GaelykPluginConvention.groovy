@@ -23,6 +23,7 @@ import org.gradle.api.plugins.gaelyk.tools.PluginManager
  * @author Benjamin Muschko
  */
 class GaelykPluginConvention {
+    boolean rad = true
 	
 	def gaelyk(Closure closure) {
         closure.delegate = this
