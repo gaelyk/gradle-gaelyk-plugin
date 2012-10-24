@@ -215,13 +215,9 @@ class GaelykPlugin implements Plugin<Project> {
         }
     }
 
-    private File getMainSourceSetOutputDirectory(Project project, GaelykPluginConvention pluginConvention) {
-        if (pluginConvention.rad) {
-            WarPluginConvention warPluginConvention = getWarConvention(project)
-            new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
-        } else {
-            getMainSourceSet(project).output.classesDir
-        }
+    private File getMainOutputDirectoryForRad(Project project, GaelykPluginConvention pluginConvention) {
+        WarPluginConvention warPluginConvention = getWarConvention(project)
+        new File(warPluginConvention.webAppDir, OUTPUT_DIRECTORY_RELATIVE_PATH)
     }
 
     private SourceSet getMainSourceSet(Project project) {
@@ -232,14 +228,21 @@ class GaelykPlugin implements Plugin<Project> {
 
     private void configureMainSourceSet(Project project, GaelykPluginConvention pluginConvention) {
         project.afterEvaluate {
-            getMainSourceSet(project).output.classesDir = getMainSourceSetOutputDirectory(project, pluginConvention)
+            if (pluginConvention.rad) {
+                def mainSourceSetOutput = getMainSourceSet(project).output
+                def mainOutputDirectoryForRad = getMainOutputDirectoryForRad(project, pluginConvention)
+                mainSourceSetOutput.classesDir = mainOutputDirectoryForRad
+                mainSourceSetOutput.resourcesDir = mainOutputDirectoryForRad
+            }
         }
     }
 
     private void configureCleanTask(Project project, GaelykPluginConvention pluginConvention) {
         project.afterEvaluate {
-            Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-            task.delete(getMainSourceSetOutputDirectory(project, pluginConvention))
+            if (pluginConvention.rad) {
+                Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
+                task.delete(getMainOutputDirectoryForRad(project, pluginConvention))
+            }
         }
     }
 

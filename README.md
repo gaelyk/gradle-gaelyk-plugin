@@ -54,9 +54,9 @@ is `src/main/webapp` and can be changed using `webAppDirName` convention propert
 * FATJar plugin's tasks are skipped when running in RAD mode and starting development server as the server works against webapp dir
 
 ## Modifications to project configuration
-When running in RAD mode (see [conventions](#convention-properties) for details) main source set output directory is set
-to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development server against webapp dir which in turn
-enables reloading of changes to groovlets and templates code without restarting the server.
+When running in RAD mode (see [conventions](#convention-properties) for details) main source set output directory as well as
+main resources output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development server
+against webapp dir which in turn enables reloading of changes to groovlets and templates code without restarting the server.
 
 ## Dependencies you need to specify
 When applying gaelyk plugin to your project remember that you have to specify the folowing dependencies:
