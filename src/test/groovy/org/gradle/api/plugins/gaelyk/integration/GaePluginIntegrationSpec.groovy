@@ -52,11 +52,7 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
     void 'war explosion is performed in non-rad mode'() {
         given:
         skipGaeRun()
-        buildFile << """
-            gaelyk {
-                rad = false
-            }
-        """
+        nonRadMode()
 
         when:
         runTasks(GaePlugin.GAE_RUN)

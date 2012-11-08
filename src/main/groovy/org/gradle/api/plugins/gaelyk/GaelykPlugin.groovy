@@ -53,6 +53,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
     static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
+    static final String APPENGINE_GENERATED_RELATIVE_PATH = 'WEB-INF/appengine-generated'
 
     @Override
     public void apply(Project project) {
@@ -241,7 +242,9 @@ class GaelykPlugin implements Plugin<Project> {
         project.afterEvaluate {
             if (pluginConvention.rad) {
                 Delete task = project.tasks.findByName(BasePlugin.CLEAN_TASK_NAME)
-                task.delete(getMainOutputDirectoryForRad(project, pluginConvention))
+                [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
+                    task.delete(new File(getWarConvention(project).webAppDir, it))
+                }
             }
         }
     }

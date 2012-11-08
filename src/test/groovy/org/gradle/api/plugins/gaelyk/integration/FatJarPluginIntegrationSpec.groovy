@@ -20,11 +20,7 @@ class FatJarPluginIntegrationSpec extends IntegrationSpec {
     def 'jar optimization tasks are not skipped if we are executing gaeRun in non-rad mode'() {
         given:
         skipGaeRun()
-        buildFile << """
-            gaelyk {
-                rad = false
-            }
-        """
+        nonRadMode()
 
         when:
         runTasks(GAE_RUN)
