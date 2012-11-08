@@ -91,6 +91,14 @@ abstract class IntegrationSpec extends Specification {
         '''
     }
 
+    protected nonRadMode() {
+        buildFile << '''
+            gaelyk {
+                rad = false
+            }
+        '''
+    }
+
     protected BuildResult runTasks(String... tasks) {
         BuildResult result = launcher(tasks).run()
         assert !result.failure

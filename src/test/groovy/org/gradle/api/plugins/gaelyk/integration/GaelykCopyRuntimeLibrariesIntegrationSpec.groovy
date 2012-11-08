@@ -31,11 +31,7 @@ class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
 
     void 'gaelykCopyRuntimeLibraries is skipped if running in non-rad mode'() {
         given:
-        buildFile << """
-            gaelyk {
-                rad = false
-            }
-        """
+        nonRadMode()
 
         when:
         runTasks(GAELYK_COPY_RUNTIME_LIBRARIES)

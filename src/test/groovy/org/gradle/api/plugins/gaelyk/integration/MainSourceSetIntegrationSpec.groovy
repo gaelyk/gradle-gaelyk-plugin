@@ -34,11 +34,7 @@ class MainSourceSetIntegrationSpec extends IntegrationSpec {
 
     void 'class output, libs, and appengine-generated dirs are not cleaned if not in rad mode'() {
         given:
-        buildFile << '''
-            gaelyk {
-                rad = false
-            }
-        '''
+        nonRadMode()
         def webAppDir = new File(dir.root, DEFAULT_WEB_APP_PATH)
         [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
             new File(webAppDir, it).mkdirs()
@@ -76,11 +72,7 @@ class MainSourceSetIntegrationSpec extends IntegrationSpec {
     void 'main source set output is not modified when running in non-rad mode'() {
         given:
         addSourcesAndResources()
-        buildFile << '''
-            gaelyk {
-                rad = false
-            }
-        '''
+        nonRadMode()
 
         when:
         runTasks(JavaPlugin.CLASSES_TASK_NAME)
