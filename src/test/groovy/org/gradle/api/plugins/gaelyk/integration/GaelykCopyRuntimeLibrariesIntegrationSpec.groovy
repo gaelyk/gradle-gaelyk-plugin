@@ -4,7 +4,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
 import spock.lang.Unroll
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getLIBRARIES_DIRECTORY_RELATIVE_PATH
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.LIBRARIES_DIRECTORY_RELATIVE_PATH
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.GAELYK_COPY_RUNTIME_LIBRARIES
 
 class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
