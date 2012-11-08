@@ -1,28 +1,56 @@
 package org.gradle.api.plugins.gaelyk.integration
 
+import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.plugins.JavaPlugin
 import spock.lang.Unroll
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.*
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.BasePlugin
 
 class MainSourceSetIntegrationSpec extends IntegrationSpec {
 
     @Unroll
-    void 'clean tasks also cleans class output directory when webAppDir is #scenario'() {
+    void 'clean tasks also cleans class output, libs, and appengine-generated dirs in rad mode when webAppDir is #scenario'() {
         given:
-        specifyWebAppDirAndCreateGroovletsDir(webAppDir)
-        directory(classOutputDir)
+        specifyWebAppDirAndCreateGroovletsDir(webAppDirPath)
+        def webAppDir = new File(dir.root, reslovedWebAppDir)
+        [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
+            new File(webAppDir, it).mkdirs()
+        }
 
         when:
         runTasks(BasePlugin.CLEAN_TASK_NAME)
 
         then:
-        !new File(dir.root, classOutputDir).exists()
+        [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
+            assert !new File(webAppDir, it).exists()
+        }
 
         where:
-        scenario        | classOutputDir                                          | webAppDir
-        'not specified' | "$DEFAULT_WEB_APP_PATH/$OUTPUT_DIRECTORY_RELATIVE_PATH" | null
-        'specified'     | "customWebappDir/$OUTPUT_DIRECTORY_RELATIVE_PATH"       | 'customWebappDir'
+        scenario        | webAppDirPath
+        'not specified' | null
+        'specified'     | 'customWebappDir'
+
+        reslovedWebAppDir = webAppDirPath ?: DEFAULT_WEB_APP_PATH
+    }
+
+    void 'class output, libs, and appengine-generated dirs are not cleaned if not in rad mode'() {
+        given:
+        buildFile << '''
+            gaelyk {
+                rad = false
+            }
+        '''
+        def webAppDir = new File(dir.root, DEFAULT_WEB_APP_PATH)
+        [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
+            new File(webAppDir, it).mkdirs()
+        }
+
+        when:
+        runTasks(BasePlugin.CLEAN_TASK_NAME)
+
+        then:
+        [OUTPUT_DIRECTORY_RELATIVE_PATH, LIBRARIES_DIRECTORY_RELATIVE_PATH, APPENGINE_GENERATED_RELATIVE_PATH].each {
+            assert new File(webAppDir, it).exists()
+        }
     }
 
     @Unroll
