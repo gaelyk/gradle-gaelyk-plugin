@@ -56,7 +56,7 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
                 assert parent.exists()
                 File file = new File(parent, info.file)
                 assert file.createNewFile()
-                file.write converter.getTemplateAsScript(template.text, dirToPackage(info.dir), template)
+                file.write converter.getTemplateAsScript(template.text, dirToPackage(info.dir), template, getSrcDir())
             }
 
         }

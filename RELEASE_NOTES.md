@@ -1,3 +1,8 @@
+### Version 0.4.1 (SNAPSHOT)
+
+* Better reporting of templates' compilation errors during `gaelykPrecompileTemplates` task - [Issue 23](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/23)
+* Inlined static templates' includes such as `<% include 'foo.gtpl' %>` - [Issue 10] - (https://github.com/bmuschko/gradle-gaelyk-plugin/issues/10)
+
 ### Version 0.4 (July 21, 2012)
 
 * Add common boilerplate code from Gaelyk template project - [Issue 13](https://github.com/bmuschko/gradle-gaelyk-plugin/pull/13).
