@@ -16,6 +16,9 @@
 package org.gradle.api.plugins.gaelyk.util
 
 import groovy.text.SimpleTemplateEngine
+
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.codehaus.groovy.control.messages.SyntaxErrorMessage;
 import org.gradle.api.file.FileCollection
 
 /**
@@ -32,8 +35,36 @@ class TemplateToScriptConverter {
         ste = [hjgs]
     }
 
-    String getTemplateAsScript(String template, String pkg) {
-        ste.createTemplate(template)
+    String getTemplateAsScript(String template, String pkg, File original) {
+        try {
+            ste.createTemplate(template)            
+        } catch (GroovyRuntimeException gre){
+            def lines = hjgs.scriptText.split('\n')
+            def details = []
+            for(SyntaxErrorMessage compilationError in hjgs.errors.findAll{ it instanceof SyntaxErrorMessage }){
+                details << ''
+                details << compilationError.cause.message
+                details << ''
+                int detailStartLine = Math.max(0, compilationError.cause.line - 4)
+                int detailEndLine = Math.min(compilationError.cause.line + 2, lines.size() - 1)
+                int counter = detailStartLine + 1
+                int padding = 4
+                for(line in lines[detailStartLine..compilationError.cause.line - 1]){
+                    details << "${counter}".padLeft(padding) + ": $line"
+                    counter ++
+                }
+                details << ' ' * (compilationError.cause.column + padding + 1) + '^'
+                for(line in lines[compilationError.cause.line..detailEndLine]){
+                    details << "${counter}".padLeft(padding) + ": $line"
+                    counter ++
+                }
+                details << ''
+            }
+            if(details){
+                throw new GroovyRuntimeException("Problems compiling template $original.absolutePath\nSee attached helping script snippet:\n${details.join('\n')}")                
+            }
+            throw new GroovyRuntimeException("Problems compiling template $original.absolutePath\n${gre.message}")
+        }
 
         if(pkg) {
             return 'package ' + pkg + ';' + hjgs.scriptText

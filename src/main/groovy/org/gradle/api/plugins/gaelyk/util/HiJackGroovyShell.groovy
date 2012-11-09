@@ -17,6 +17,7 @@ package org.gradle.api.plugins.gaelyk.util
 
 import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.gradle.api.file.FileCollection
 
 /**
@@ -30,10 +31,18 @@ class HiJackGroovyShell extends GroovyShell {
     }
 
     String scriptText
+    def errors = []
 
     @Override
     Script parse(String scriptText, String fileName) throws CompilationFailedException {
         this.scriptText = scriptText
-        super.parse(scriptText, fileName)
+        try{
+            super.parse(scriptText, fileName)            
+        } catch(e){
+            if(e instanceof MultipleCompilationErrorsException){
+                errors = e.errorCollector.errors
+            }
+            throw e
+        }
     }
 }

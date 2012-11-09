@@ -55,6 +55,45 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
             new File(classDestDir.absolutePath + '/pkg', '$gtpl$datetime.class').exists()
     }
     
+    def "Test fail precompilation"() {
+        given:
+            Project project = ProjectBuilder.builder().build()
+            GroovyBasePlugin groovyBasePlugin = new GroovyBasePlugin()
+            groovyBasePlugin.apply(project)
+            def configuration = project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
+
+            def dir = TempDir.createNew("precompile-task")
+            def templatesSrcDir = new File(dir, '/templates')
+            templatesSrcDir.mkdirs()
+            def datetimeTemplate = new File(templatesSrcDir, 'datetime.gtpl')
+            datetimeTemplate.append('''
+
+
+            <html><body>Hello $world</body></html>
+            This will fail: ${ hello(world }
+
+
+
+''')
+            def packageDir = new File(templatesSrcDir, '/pkg')
+            
+            def classDestDir = new File(dir, '/classes')
+            classDestDir.mkdirs()
+
+            GaelykPrecompileTemplateTask task = createTask(project)
+            task.groovyClasspath = configuration.asFileTree
+            task.runtimeClasspath = project.files([])
+            task.srcDir = templatesSrcDir
+            task.destDir = classDestDir
+
+        when:
+            task.precompile()
+
+        then:
+            def e = thrown(GroovyRuntimeException)
+            e.message.contains(datetimeTemplate.absolutePath)
+    }
+    
     
     
     def "Get script name"() {
