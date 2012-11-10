@@ -2,6 +2,8 @@
 
 * Better reporting of templates' compilation errors during `gaelykPrecompileTemplates` task - [Issue 23](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/23)
 * Inlined static templates' includes such as `<% include 'foo.gtpl' %>` - [Issue 10] - (https://github.com/bmuschko/gradle-gaelyk-plugin/issues/10)
+* Added non-RAD mode in which `gaeRun` is executed against exploded war in contrary to being executed against `webAppDir` in the default RAD mode - [Issue 14](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/14)
+* Several bug fixes to the plugin when in RAD mode [Issue 16](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/16), [Issue 22](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/22)
 
 ### Version 0.4 (July 21, 2012)
 

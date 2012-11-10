@@ -87,6 +87,7 @@ uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
 * `gaelykPrecompileGroovlet`: Precompiles Groovlets to minimize startup costs. If your scripts reside in any subfolder don't forget to declare the script's `package` correspondingly.
 * `gaelykPrecompileTemplate`: Precompiles Groovy templates to minimize startup costs. All static templates' includes such as `<% include 'foo.gtpl' %>` are inlined for better performance.
 * `gaelykCopyRuntimeLibraries`: Synchronises runtime libraries in webapp directory.
+
 ## Task Rules
 
 * `gaelykCreateController<ControllerName>`: Creates a Gaelyk controller (Groovlet). Optionally, you can define the directory
