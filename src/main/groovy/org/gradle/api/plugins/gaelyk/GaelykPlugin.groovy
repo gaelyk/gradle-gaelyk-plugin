@@ -32,6 +32,8 @@ import org.gradle.api.plugins.gaelyk.tasks.*
 
 import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
+import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
+import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -122,8 +124,9 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
         gaelykPrecompileGroovletTask.group = GAELYK_GROUP
         gaelykPrecompileGroovletTask.onlyIf { !gaeRunIsInGraph(project) }
-        
-        project.tasks.classes.dependsOn(gaelykPrecompileGroovletTask)
+
+        gaelykPrecompileGroovletTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
+        project.tasks.findByName(WAR_TASK_NAME).dependsOn(gaelykPrecompileGroovletTask)
     }
     
     private void configureGaelykPrecompileTemplate(final Project project) {
@@ -138,8 +141,9 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
         gaelykPrecompileTemplateTask.group = GAELYK_GROUP
         gaelykPrecompileTemplateTask.onlyIf { !gaeRunIsInGraph(project) }
-        
-        project.tasks.classes.dependsOn(gaelykPrecompileTemplateTask)
+
+        gaelykPrecompileTemplateTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
+        project.tasks.findByName(WAR_TASK_NAME).dependsOn(gaelykPrecompileTemplateTask)
     }
 
     private void configureGaelykCreateControllerTask(final Project project) {
