@@ -1,4 +1,4 @@
-# Gradle Gaelyk plugin
+# Gradle Gaelyk plugin [![Build Status](https://buildhive.cloudbees.com/job/bmuschko/job/gradle-gaelyk-plugin/badge/icon)](https://buildhive.cloudbees.com/job/bmuschko/job/gradle-gaelyk-plugin/)
 
 ![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
 
