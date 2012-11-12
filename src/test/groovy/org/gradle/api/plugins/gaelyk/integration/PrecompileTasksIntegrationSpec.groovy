@@ -1,21 +1,51 @@
 package org.gradle.api.plugins.gaelyk.integration
 
 import org.gradle.BuildResult
+import spock.lang.Unroll
+
 import static org.gradle.api.plugins.gae.GaePlugin.getGAE_RUN
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_GROOVLET
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_TEMPLATE
-import spock.lang.Unroll
 
 class PrecompileTasksIntegrationSpec extends IntegrationSpec {
-    def 'precompile tasks should be skipped when gaeRun is in task graph'() {
+    @Unroll
+    def 'precompile tasks are in graph when war optimization is #scenario'() {
         given:
         skipGaeRun()
+        buildFile << """
+            gae { optimizeWar = $optimizeWar }
+        """
 
         when:
         runTasks(GAE_RUN)
 
         then:
-        tasks(GAELYK_PRECOMPILE_GROOVLET, GAELYK_PRECOMPILE_TEMPLATE).every { it.state.skipped }
+        executedTasks*.task*.name.containsAll([GAELYK_PRECOMPILE_GROOVLET, GAELYK_PRECOMPILE_TEMPLATE])
+
+        where:
+        scenario   | optimizeWar
+        'enabled'  | true
+        'disabled' | false
+    }
+
+    @Unroll
+    def 'precompile tasks should #scenario when gaeRun is in task graph'() {
+        given:
+        skipGaeRun()
+        radMode rad
+
+        when:
+        runTasks(GAE_RUN)
+
+        then:
+        tasks(GAELYK_PRECOMPILE_GROOVLET, GAELYK_PRECOMPILE_TEMPLATE).each {
+            assert it.state.skipped == skipped
+        }
+
+        where:
+        scenario                         | rad   | skipped
+        'not be skipped in non-RAD mode' | false | false
+        'be skipped in RAD mode'         | true  | true
     }
 
     @Unroll

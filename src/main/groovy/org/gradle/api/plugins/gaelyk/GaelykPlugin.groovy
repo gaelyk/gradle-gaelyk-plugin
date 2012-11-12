@@ -34,6 +34,7 @@ import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
 import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
+import org.gradle.api.Task
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -71,8 +72,8 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
-        configureGaelykPrecompileGroovlet(project)
-        configureGaelykPrecompileTemplate(project)
+        configureGaelykPrecompileGroovlet(project, gaelykPluginConvention)
+        configureGaelykPrecompileTemplate(project, gaelykPluginConvention)
         configureFatJarPlugin(project, gaelykPluginConvention)
         configureGaePlugin(project, gaelykPluginConvention)
         configureMainSourceSet(project, gaelykPluginConvention)
@@ -112,7 +113,7 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykListPluginsTask.group = GAELYK_GROUP
     }
 
-    private void configureGaelykPrecompileGroovlet(final Project project) {
+    private void configureGaelykPrecompileGroovlet(Project project, GaelykPluginConvention pluginConvention) {
         project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
             gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
             gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
@@ -123,13 +124,11 @@ class GaelykPlugin implements Plugin<Project> {
         def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
         gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
         gaelykPrecompileGroovletTask.group = GAELYK_GROUP
-        gaelykPrecompileGroovletTask.onlyIf { !gaeRunIsInGraph(project) }
 
-        gaelykPrecompileGroovletTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
-        project.tasks.findByName(WAR_TASK_NAME).dependsOn(gaelykPrecompileGroovletTask)
+        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileGroovletTask)
     }
     
-    private void configureGaelykPrecompileTemplate(final Project project) {
+    private void configureGaelykPrecompileTemplate(final Project project, GaelykPluginConvention pluginConvention) {
         project.tasks.withType(GaelykPrecompileTemplateTask).whenTaskAdded { GaelykPrecompileTemplateTask gaelykPrecompilTemplateTask ->
             gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
             gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
@@ -140,10 +139,16 @@ class GaelykPlugin implements Plugin<Project> {
         def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
         gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
         gaelykPrecompileTemplateTask.group = GAELYK_GROUP
-        gaelykPrecompileTemplateTask.onlyIf { !gaeRunIsInGraph(project) }
 
-        gaelykPrecompileTemplateTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
-        project.tasks.findByName(WAR_TASK_NAME).dependsOn(gaelykPrecompileTemplateTask)
+        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileTemplateTask)
+    }
+
+    private void weavePrecompileTaskIntoGraph(Project project, GaelykPluginConvention pluginConvention, Task precompileTask) {
+        precompileTask.onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
+
+        precompileTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
+        project.tasks.findByName(WAR_TASK_NAME).dependsOn(precompileTask)
+        project.tasks.findByName(FATJAR_PREPARE_FILES).dependsOn(precompileTask)
     }
 
     private void configureGaelykCreateControllerTask(final Project project) {

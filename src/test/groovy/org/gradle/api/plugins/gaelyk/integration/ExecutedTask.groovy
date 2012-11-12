@@ -6,4 +6,9 @@ import org.gradle.api.tasks.TaskState
 class ExecutedTask {
     Task task
     TaskState state
+
+    @Override
+    String toString() {
+        "executed $task"
+    }
 }

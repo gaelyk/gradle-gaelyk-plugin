@@ -62,7 +62,9 @@ abstract class IntegrationSpec extends Specification {
     }
 
     protected Collection<ExecutedTask> tasks(String... names) {
-        executedTasks.findAll { it.task.name in names }
+        def tasks = executedTasks.findAll { it.task.name in names }
+        assert tasks.size() == names.size()
+        tasks
     }
 
     def setup() {
@@ -91,12 +93,16 @@ abstract class IntegrationSpec extends Specification {
         '''
     }
 
-    protected nonRadMode() {
-        buildFile << '''
+    protected radMode(rad) {
+        buildFile << """
             gaelyk {
-                rad = false
+                rad = $rad
             }
-        '''
+        """
+    }
+
+    protected nonRadMode() {
+        radMode false
     }
 
     protected BuildResult runTasks(String... tasks) {
