@@ -29,7 +29,7 @@ it from Maven Central:
         }
 
         dependencies {
-            classpath 'bmuschko:gradle-gaelyk-plugin:0.4.1'
+            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.4.1'
         }
     }
 
