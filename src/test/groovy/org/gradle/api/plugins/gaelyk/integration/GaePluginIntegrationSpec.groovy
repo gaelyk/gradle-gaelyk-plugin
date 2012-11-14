@@ -30,12 +30,28 @@ class GaePluginIntegrationSpec extends IntegrationSpec {
 
     void 'gae plugin conventions are set up'() {
         given:
-        Project project = projectForTasks(CLASSES_TASK_NAME)
-        GaePluginConvention gaeConvention = project.convention.plugins.gae
+        GaePluginConvention gaeConvention = projectForTasks(CLASSES_TASK_NAME).convention.plugins.gae
 
         expect:
         gaeConvention.downloadSdk
         gaeConvention.optimizeWar
+    }
+
+    @Unroll
+    void 'gaelyk.preferPrecompiled system property is #scenario'() {
+        given:
+        radMode rad
+
+        when:
+        GaePluginConvention gaeConvention = projectForTasks(CLASSES_TASK_NAME).convention.plugins.gae
+
+        then:
+        gaeConvention.jvmFlags.contains('-Dgaelyk.preferPrecompiled=true') == propertySet
+
+        where:
+        scenario                   | rad   | propertySet
+        'set when in non-RAD mode' | false | true
+        'not set when in RAD mode' | true  | false
     }
 
     void 'war explosion is not performed in rad mode'() {

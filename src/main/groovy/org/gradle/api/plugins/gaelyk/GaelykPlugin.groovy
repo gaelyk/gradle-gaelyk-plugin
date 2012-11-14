@@ -220,6 +220,8 @@ class GaelykPlugin implements Plugin<Project> {
             project.afterEvaluate {
                 if (pluginConvention.rad) {
                     gaePluginConvention.warDir = getWarConvention(project).webAppDir
+                } else {
+                    gaePluginConvention.jvmFlags += '-Dgaelyk.preferPrecompiled=true'
                 }
             }
         }
