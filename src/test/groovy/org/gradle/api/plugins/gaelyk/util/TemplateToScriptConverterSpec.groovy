@@ -20,12 +20,14 @@ class TemplateToScriptConverterSpec extends Specification {
     <% include 'one.gtpl' %>
     <% include "/pkg/two.gtpl" %>
     <% include '/pkg/two/three.gtpl' %>
+    <% include '/WEB-INF/gtpl/four.gtpl' %>
     </body>
 </html>
 '''
         String tplOne       = '<em>ONE is SUPER</em>'
         String tplTwo       = '<strong>TWO is GREAT</strong>'
         String tplThree     = '<% include \'/one.gtpl\' %>'
+        String tplFour      = '<p>FOUR</p>'
         
         TemplateToScriptConverter converter = [ buildClasspath()]
         
@@ -41,6 +43,9 @@ class TemplateToScriptConverterSpec extends Specification {
         File packageDir2 = new File(packageDir, '/two')
         packageDir2.mkdirs()
         new File(packageDir2, 'three.gtpl').append(tplThree)
+        File webInfDir = new File(templatesSrcDir, '/WEB-INF/gtpl/')
+        webInfDir.mkdirs()
+        new File(webInfDir, 'four.gtpl').append(tplFour)
         
         when:
         String template = converter.getTemplateAsScript(baseTemplateText, '', original, templatesSrcDir)
@@ -70,6 +75,11 @@ out.print("""
 out.print("""<em>ONE is SUPER</em>""");
 /* include#end   /one.gtpl */
 /* include#end   /pkg/two/three.gtpl */
+out.print("""
+    """);
+/* include#begin /WEB-INF/gtpl/four.gtpl */
+out.print("""<p>FOUR</p>""");
+/* include#end   /WEB-INF/gtpl/four.gtpl */
 out.print("""
     </body>
 </html>

@@ -33,6 +33,7 @@ import org.gradle.api.tasks.*
 @Slf4j
 class GaelykPrecompileTemplateTask extends DefaultTask {
     static final String GROOVY_TEMPLATE_FILE_EXT = '.gtpl'
+    static final String GAELYK_PRECOMPILE_TEMPLATE_STAGE_DIR = '/gtpl-as-script'
     @InputFiles FileCollection groovyClasspath
     @InputFiles FileCollection runtimeClasspath
     @InputDirectory @SkipWhenEmpty File srcDir
@@ -41,7 +42,9 @@ class GaelykPrecompileTemplateTask extends DefaultTask {
     @TaskAction
     def precompile() {
         TemplateToScriptConverter converter = new TemplateToScriptConverter(getRuntimeClasspath())
-        File dir = TempDir.createNew('gtpl-staging')
+        File dir = new File(project.buildDir.absolutePath + GAELYK_PRECOMPILE_TEMPLATE_STAGE_DIR)
+        dir.deleteDir()
+        dir.mkdirs()
 
         getSrcDir().eachFileRecurse { File template ->
             if(template.name.endsWith(GROOVY_TEMPLATE_FILE_EXT)){

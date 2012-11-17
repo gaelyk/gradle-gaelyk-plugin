@@ -47,10 +47,14 @@ class TemplateToScriptConverter {
         }
 
         if(pkg) {
-            return 'package ' + pkg + ';' + hjgs.scriptText
+            return 'package ' + pkg + ';' + inlineIncludes(hjgs.scriptText, original, templatesRoot)
         }
 
-        hjgs.scriptText.replaceAll(';\\s*include\\s+["\']([^$]*?\\.gtpl)["\']\\s*;') { String match, String path ->
+        inlineIncludes(hjgs.scriptText, original, templatesRoot)
+    }
+    
+    private String inlineIncludes(String scriptText, File original, File templatesRoot){
+        scriptText.replaceAll(';\\s*include\\s+["\']([^$]*?\\.gtpl)["\']\\s*;') { String match, String path ->
             File file = null
             if(path.startsWith('/')){
                 // relative to templates root
