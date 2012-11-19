@@ -29,8 +29,6 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.Sync
 import org.gradle.api.plugins.*
 import org.gradle.api.plugins.gaelyk.tasks.*
-
-import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
 import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
@@ -57,6 +55,12 @@ class GaelykPlugin implements Plugin<Project> {
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
     static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
     static final String APPENGINE_GENERATED_RELATIVE_PATH = 'WEB-INF/appengine-generated'
+    
+    // needs to be repeated because GAE plugin must be able to run even if fatjar is not installed
+    // this is needed e.g. when building gaelyk binary plugins
+    static final String FATJAR_PREPARE_FILES = "fatJarPrepareFiles"
+    static final String FATJAR_FAT_JAR = "fatJar"
+    static final String FATJAR_SLIM_WAR = "slimWar"
 
     @Override
     public void apply(Project project) {
