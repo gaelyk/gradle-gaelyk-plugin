@@ -1,4 +1,4 @@
-package org.gradle.api.plugins.gaelyk.integration
+package org.gradle.api.plugins.gaelyk.integration.gaelyk
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.WarPluginConvention
@@ -6,10 +6,12 @@ import org.gradle.api.plugins.gae.GaePlugin
 import org.gradle.api.plugins.gae.GaePluginConvention
 import org.gradle.api.plugins.gae.task.GaeRunTask
 import org.gradle.api.plugins.gaelyk.GaelykPlugin
+import org.gradle.api.plugins.gaelyk.integration.GaelykPluginIntegrationSpec
 import spock.lang.Unroll
+
 import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 
-class GaePluginIntegrationSpec extends IntegrationSpec {
+class GaePluginIntegrationSpec extends GaelykPluginIntegrationSpec {
     def setup() {
         buildFile << """
             gae {

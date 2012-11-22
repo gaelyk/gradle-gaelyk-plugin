@@ -1,11 +1,15 @@
-package org.gradle.api.plugins.gaelyk.integration
+package org.gradle.api.plugins.gaelyk.integration.gaelyk
 
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.gaelyk.integration.GaelykPluginIntegrationSpec
 import spock.lang.Unroll
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.*
 
-class MainSourceSetIntegrationSpec extends IntegrationSpec {
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.OUTPUT_DIRECTORY_RELATIVE_PATH
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.LIBRARIES_DIRECTORY_RELATIVE_PATH
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.APPENGINE_GENERATED_RELATIVE_PATH
+
+class MainSourceSetIntegrationSpec extends GaelykPluginIntegrationSpec {
 
     @Unroll
     void 'clean tasks also cleans class output, libs, and appengine-generated dirs in rad mode when webAppDir is #scenario'() {

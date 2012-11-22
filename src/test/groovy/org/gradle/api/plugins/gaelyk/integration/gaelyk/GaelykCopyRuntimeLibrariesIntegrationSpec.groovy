@@ -1,13 +1,15 @@
-package org.gradle.api.plugins.gaelyk.integration
+package org.gradle.api.plugins.gaelyk.integration.gaelyk
 
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.gaelyk.integration.GaelykPluginIntegrationSpec
 import spock.lang.Unroll
-import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.LIBRARIES_DIRECTORY_RELATIVE_PATH
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.GAELYK_COPY_RUNTIME_LIBRARIES
 
-class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
+import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
+
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.LIBRARIES_DIRECTORY_RELATIVE_PATH
+
+class GaelykCopyRuntimeLibrariesIntegrationSpec extends GaelykPluginIntegrationSpec {
     @Unroll
     void 'gaelykCopyRuntimeLibraries synchronises libs dir when webAppDir is #scenario'() {
         given:
@@ -34,9 +36,9 @@ class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
         nonRadMode()
 
         when:
-        runTasks(GAELYK_COPY_RUNTIME_LIBRARIES)
+        runTasks(org.gradle.api.plugins.gaelyk.GaelykPlugin.GAELYK_COPY_RUNTIME_LIBRARIES)
 
         then:
-        task(GAELYK_COPY_RUNTIME_LIBRARIES).state.skipped
+        task(org.gradle.api.plugins.gaelyk.GaelykPlugin.GAELYK_COPY_RUNTIME_LIBRARIES).state.skipped
     }
 }

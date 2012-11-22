@@ -6,7 +6,7 @@ apply plugin: 'nexus'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
-version = '0.4.1'
+version = '0.4.2-SNAPSHOT'
 
 buildscript {
     repositories {

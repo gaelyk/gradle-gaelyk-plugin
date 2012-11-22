@@ -17,10 +17,14 @@ package org.gradle.api.plugins.gaelyk
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
+import org.gradle.api.Task
 import org.gradle.api.plugins.gae.GaePlugin
 import org.gradle.api.plugins.gae.GaePluginConvention
 import org.gradle.api.plugins.gae.task.GaeRunTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykInstallPluginTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykListInstalledPluginsTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykListPluginsTask
+import org.gradle.api.plugins.gaelyk.tasks.GaelykUninstallPluginTask
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
@@ -28,34 +32,30 @@ import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.Sync
 import org.gradle.api.plugins.*
-import org.gradle.api.plugins.gaelyk.tasks.*
-import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
+
 import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
-import org.gradle.api.Task
+import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
  *
  * @author Benjamin Muschko
  */
-class GaelykPlugin implements Plugin<Project> {
-    static final String GAELYK_GROUP = "Gaelyk"
+class GaelykPlugin extends GaelykPluginBase implements Plugin<Project> {
     static final String GAELYK_INSTALL_PLUGIN = "gaelykInstallPlugin"
     static final String GAELYK_UNINSTALL_PLUGIN = "gaelykUninstallPlugin"
     static final String GAELYK_LIST_INSTALLED_PLUGINS = "gaelykListInstalledPlugins"
     static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
-    static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
-    static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplate"
+
     static final String GAELYK_COPY_RUNTIME_LIBRARIES = "gaelykCopyRuntimeLibraries"
 
-    static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
     static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
     static final String APPENGINE_GENERATED_RELATIVE_PATH = 'WEB-INF/appengine-generated'
-    
+
     // needs to be repeated because GAE plugin must be able to run even if fatjar is not installed
     // this is needed e.g. when building gaelyk binary plugins
     static final String FATJAR_PREPARE_FILES = "fatJarPrepareFiles"
@@ -117,37 +117,7 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykListPluginsTask.group = GAELYK_GROUP
     }
 
-    private void configureGaelykPrecompileGroovlet(Project project, GaelykPluginConvention pluginConvention) {
-        project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
-            gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
-            gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, GROOVLET_DIRECTORY_RELATIVE_PATH) }
-            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
-        }
-
-        def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
-        gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
-        gaelykPrecompileGroovletTask.group = GAELYK_GROUP
-
-        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileGroovletTask)
-    }
-    
-    private void configureGaelykPrecompileTemplate(final Project project, GaelykPluginConvention pluginConvention) {
-        project.tasks.withType(GaelykPrecompileTemplateTask).whenTaskAdded { GaelykPrecompileTemplateTask gaelykPrecompilTemplateTask ->
-            gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
-            gaelykPrecompilTemplateTask.conventionMapping.map("srcDir") { getWarConvention(project).webAppDir }
-            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
-        }
-
-        def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
-        gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
-        gaelykPrecompileTemplateTask.group = GAELYK_GROUP
-
-        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileTemplateTask)
-    }
-
-    private void weavePrecompileTaskIntoGraph(Project project, GaelykPluginConvention pluginConvention, Task precompileTask) {
+    protected void weavePrecompileTaskIntoGraph(Project project, Task precompileTask, pluginConvention) {
         precompileTask.onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
 
         precompileTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
@@ -155,10 +125,18 @@ class GaelykPlugin implements Plugin<Project> {
         project.tasks.findByName(FATJAR_PREPARE_FILES).dependsOn(precompileTask)
     }
 
+    protected File getWebAppDir(Project project) {
+        getWarConvention(project).webAppDir
+    }
+
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->
             createGaelykFile(project, taskName, GAELYK_CREATE_CONTROLLER, new GaelykControllerCreator())
         }
+    }
+
+    private WarPluginConvention getWarConvention(Project project) {
+        project.convention.getPlugin(WarPluginConvention)
     }
 
     private void configureGaelykCreateViewTask(final Project project) {
@@ -168,7 +146,7 @@ class GaelykPlugin implements Plugin<Project> {
     }
 
     private void createGaelykFile(final Project project, final String taskName, final String taskBaseName, final GaelykFileCreator gaelykFileCreator) {
-        if(taskName.startsWith(taskBaseName) && taskName.length() > taskBaseName.length()) {
+        if (taskName.startsWith(taskBaseName) && taskName.length() > taskBaseName.length()) {
             project.task(taskName) << {
                 String viewName = (taskName - taskBaseName)
                 String viewDir = getDirProperty(project)
@@ -184,21 +162,6 @@ class GaelykPlugin implements Plugin<Project> {
 
     private String getPluginProperty(final Project project) {
         project.hasProperty("plugin") ? project.property("plugin") : null
-    }
-
-    private WarPluginConvention getWarConvention(Project project) {
-        project.convention.getPlugin(WarPluginConvention)
-    }
-
-    /**
-     * Creates classpath from classes directory and runtime classpath.
-     *
-     * @return Classpath
-     */
-    private FileCollection createRuntimeClasspath(Project project) {
-        FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
-        runtimeClasspath += project.configurations.runtime
-        runtimeClasspath
     }
 
     private void configureFatJarPlugin(Project project, GaelykPluginConvention pluginConvention) {

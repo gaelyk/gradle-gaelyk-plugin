@@ -1,13 +1,14 @@
-package org.gradle.api.plugins.gaelyk.integration
+package org.gradle.api.plugins.gaelyk.integration.gaelyk
 
 import org.gradle.BuildResult
+import org.gradle.api.plugins.gaelyk.integration.GaelykPluginIntegrationSpec
 import spock.lang.Unroll
 
 import static org.gradle.api.plugins.gae.GaePlugin.getGAE_RUN
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_GROOVLET
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_TEMPLATE
+import static org.gradle.api.plugins.gaelyk.GaelykPluginBase.GAELYK_PRECOMPILE_GROOVLET
+import static org.gradle.api.plugins.gaelyk.GaelykPluginBase.GAELYK_PRECOMPILE_TEMPLATE
 
-class PrecompileTasksIntegrationSpec extends IntegrationSpec {
+class PrecompileTasksIntegrationSpec extends GaelykPluginIntegrationSpec {
     @Unroll
     def 'precompile tasks are in graph when war optimization is #scenario'() {
         given:

@@ -1,9 +1,10 @@
-package org.gradle.api.plugins.gaelyk.integration
+package org.gradle.api.plugins.gaelyk.integration.gaelyk
 
 import static org.gradle.api.plugins.gae.GaePlugin.*
 import static eu.appsatori.gradle.fatjar.FatJarPlugin.*
+import org.gradle.api.plugins.gaelyk.integration.GaelykPluginIntegrationSpec
 
-class FatJarPluginIntegrationSpec extends IntegrationSpec {
+class FatJarPluginIntegrationSpec extends GaelykPluginIntegrationSpec {
     def 'jar optimization tasks are skipped if we are executing gaeRun in rad mode'() {
         given:
         skipGaeRun()
