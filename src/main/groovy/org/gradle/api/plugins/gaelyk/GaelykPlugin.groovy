@@ -100,19 +100,19 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykUninstallPluginTask.conventionMapping.map("plugin") { getPluginProperty(project) }
         }
 
-        GaelykUninstallPluginTask gaelykUninstallPluginTask = project.tasks.add(GAELYK_UNINSTALL_PLUGIN, GaelykUninstallPluginTask)
+        GaelykUninstallPluginTask gaelykUninstallPluginTask = project.tasks.create(GAELYK_UNINSTALL_PLUGIN, GaelykUninstallPluginTask)
         gaelykUninstallPluginTask.description = "Uninstalls Gaelyk plugin."
         gaelykUninstallPluginTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykListInstalledPluginsTask(final Project project) {
-        GaelykListInstalledPluginsTask gaelykListInstalledPluginsTask = project.tasks.add(GAELYK_LIST_INSTALLED_PLUGINS, GaelykListInstalledPluginsTask)
+        GaelykListInstalledPluginsTask gaelykListInstalledPluginsTask = project.tasks.create(GAELYK_LIST_INSTALLED_PLUGINS, GaelykListInstalledPluginsTask)
         gaelykListInstalledPluginsTask.description = "Lists installed Gaelyk plugins."
         gaelykListInstalledPluginsTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykListPluginsTask(final Project project) {
-        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.add(GAELYK_LIST_PLUGINS, GaelykListPluginsTask)
+        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.create(GAELYK_LIST_PLUGINS, GaelykListPluginsTask)
         gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
         gaelykListPluginsTask.group = GAELYK_GROUP
     }
@@ -125,7 +125,7 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
         }
 
-        def gaelykPrecompileGroovletTask = project.tasks.add(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
+        def gaelykPrecompileGroovletTask = project.tasks.create(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
         gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
         gaelykPrecompileGroovletTask.group = GAELYK_GROUP
 
@@ -140,7 +140,7 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
         }
 
-        def gaelykPrecompileTemplateTask = project.tasks.add(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
+        def gaelykPrecompileTemplateTask = project.tasks.create(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
         gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
         gaelykPrecompileTemplateTask.group = GAELYK_GROUP
 
@@ -265,7 +265,7 @@ class GaelykPlugin implements Plugin<Project> {
     }
 
     private void configureGaelykCopyRuntimeLibraries(Project project, GaelykPluginConvention pluginConvention) {
-        Sync gaelykCopyRuntimeLibraries = project.tasks.add(GAELYK_COPY_RUNTIME_LIBRARIES, Sync)
+        Sync gaelykCopyRuntimeLibraries = project.tasks.create(GAELYK_COPY_RUNTIME_LIBRARIES, Sync)
         gaelykCopyRuntimeLibraries.description = "Synchronises runtime libraries in webapp directory."
         gaelykCopyRuntimeLibraries.group = GAELYK_GROUP
         gaelykCopyRuntimeLibraries.from project.configurations.findByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
