@@ -21,7 +21,7 @@ class GaelykCopyRuntimeLibrariesIntegrationSpec extends IntegrationSpec {
 
         then:
         libsDirFiles
-        libsDirFiles.size() == runtimeConfiguration.files.size()
+        libsDirFiles.size() == runtimeConfiguration.resolvedConfiguration.resolvedArtifacts.size()
 
         where:
         scenario        | libsDir                                                    | webAppDir
