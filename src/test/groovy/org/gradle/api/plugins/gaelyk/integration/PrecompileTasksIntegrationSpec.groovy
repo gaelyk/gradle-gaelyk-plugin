@@ -4,8 +4,8 @@ import org.gradle.BuildResult
 import spock.lang.Unroll
 
 import static org.gradle.api.plugins.gae.GaePlugin.getGAE_RUN
-import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_GROOVLET
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_PRECOMPILE_TEMPLATE
+import static org.gradle.api.plugins.gaelyk.GaelykPlugin.getGAELYK_CONVERT_TEMPLATES
 
 class PrecompileTasksIntegrationSpec extends IntegrationSpec {
     @Unroll
@@ -20,7 +20,7 @@ class PrecompileTasksIntegrationSpec extends IntegrationSpec {
         runTasks(GAE_RUN)
 
         then:
-        executedTasks*.task*.name.containsAll([GAELYK_PRECOMPILE_GROOVLET, GAELYK_PRECOMPILE_TEMPLATE])
+        executedTasks*.task*.name.containsAll([GAELYK_CONVERT_TEMPLATES, GAELYK_PRECOMPILE_TEMPLATE])
 
         where:
         scenario   | optimizeWar
@@ -31,6 +31,7 @@ class PrecompileTasksIntegrationSpec extends IntegrationSpec {
     @Unroll
     def 'precompile tasks should #scenario when gaeRun is in task graph'() {
         given:
+        file("$DEFAULT_WEB_APP_PATH/WEB-INF/index.gtpl") << "Hello!"
         skipGaeRun()
         radMode rad
 
@@ -38,7 +39,7 @@ class PrecompileTasksIntegrationSpec extends IntegrationSpec {
         runTasks(GAE_RUN)
 
         then:
-        tasks(GAELYK_PRECOMPILE_GROOVLET, GAELYK_PRECOMPILE_TEMPLATE).each {
+        tasks(GAELYK_CONVERT_TEMPLATES, GAELYK_PRECOMPILE_TEMPLATE).each {
             assert it.state.skipped == skipped
         }
 
@@ -65,7 +66,6 @@ class PrecompileTasksIntegrationSpec extends IntegrationSpec {
 
         where:
         task                       | path                     | contents
-        GAELYK_PRECOMPILE_GROOVLET | 'groovy/groovlet.groovy' | 'new test.A()'
         GAELYK_PRECOMPILE_TEMPLATE | 'pages/template.gtpl'    | '<% new test.A() %>'
     }
 }

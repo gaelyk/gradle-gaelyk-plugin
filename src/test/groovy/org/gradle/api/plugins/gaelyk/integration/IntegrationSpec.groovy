@@ -24,7 +24,7 @@ abstract class IntegrationSpec extends Specification {
         StartParameter startParameter = GradleLauncher.createStartParameter(args)
         startParameter.setProjectDir(dir.root)
         DefaultGradleLauncher launcher = GradleLauncher.newInstance(startParameter)
-        launcher.gradle.scriptClassLoader.addParent(getClass().classLoader)
+        // launcher.gradle.scriptClassLoader.addParent(getClass().classLoader)
         executedTasks.clear()
         launcher.addListener(new TaskExecutionListener() {
             void beforeExecute(Task task) {
