@@ -29,7 +29,7 @@ it from Maven Central:
         }
 
         dependencies {
-            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.4.1'
+            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.5'
         }
     }
 
@@ -42,6 +42,7 @@ The Gaelyk plugin defines the following convention properties in the `gaelyk` cl
  instantly visible on a page reload. The downside is that your source directory is polluted with jars in 'WEB-INF/lib' and compiled
  classes in 'WEB-INF/classes'. If you wish to avoid that set `rad` property to false. Doing so will mean that application's war
  file will be exploded in `build/exploded-war` directory which in turn will be used as the application root when running locally (with `gaeRun`).
+* `templateExtension`: the extension of the templates which should be precompiled
 
 ## Integration with other Gradle plugins
 * Gaelyk plugin uses `webAppDir` convention property of [War plugin](http://gradle.org/docs/current/userguide/war_plugin.html)
@@ -60,16 +61,16 @@ against webapp dir which in turn enables reloading of changes to groovlets and t
 
 ## Dependencies you need to specify
 When applying gaelyk plugin to your project remember that you have to specify the folowing dependencies:
-* `groovy` - because Groovy plugin requires it
+* `compile` - with groovy library specified
 * `gaeSdk` - because GAE plugin requires it
 
 To be able to develop a Gaelyk application you also need to add a `compile` dependency on Gaelyk. The dependencies
 section of your build might look like this:
 
     dependencies {
-        groovy 'org.codehaus.groovy:groovy-all:1.8.6'
-        gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
-        compile 'org.gaelyk:gaelyk:1.2'
+        compile 'org.codehaus.groovy:groovy-all:1.8.6'
+        gaeSdk "com.google.appengine:appengine-java-sdk:1.8.4"
+        compile 'org.gaelyk:gaelyk:2.0'
     }
 
 ## Tasks
@@ -84,8 +85,7 @@ installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
  _Example:_ `gradle gaelykUninstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
 uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin). `gradle gaelykUninstallPlugin -Pplugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
 * `gaelykListInstalledPlugins`: Shows plugins that have been installed by the `gaelykInstallPlugin` task.
-* `gaelykPrecompileGroovlet`: Precompiles Groovlets to minimize startup costs. If your scripts reside in any subfolder don't forget to declare the script's `package` correspondingly.
-* `gaelykPrecompileTemplate`: Precompiles Groovy templates to minimize startup costs. All static templates' includes such as `<% include 'foo.gtpl' %>` are inlined for better performance.
+* `gaelykPrecompileTemplates`: Precompiles Groovy templates to minimize startup costs. All static templates' includes such as `<% include 'foo.gtpl' %>` are inlined for better performance.
 * `gaelykCopyRuntimeLibraries`: Synchronises runtime libraries in webapp directory.
 
 ## Task Rules
