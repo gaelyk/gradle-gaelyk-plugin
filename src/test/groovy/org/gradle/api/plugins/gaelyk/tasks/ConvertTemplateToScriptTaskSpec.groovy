@@ -22,7 +22,7 @@ import spock.lang.Specification
 import org.gradle.api.plugins.GroovyBasePlugin
 import org.gradle.api.file.FileCollection
 
-class GaelykPrecompileTemplateTaskSpec extends Specification {
+class ConvertTemplateToScriptTaskSpec extends Specification {
     def "Test precompile task"() {
         given:
             Project project = ProjectBuilder.builder().build()
@@ -41,18 +41,17 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
             def classDestDir = new File(dir, '/classes')
             classDestDir.mkdirs()
 
-            GaelykPrecompileTemplateTask task = createTask(project)
-            task.groovyClasspath = configuration.asFileTree
-            task.runtimeClasspath = project.files([])
-            task.srcDir = templatesSrcDir
-            task.destDir = classDestDir
+            ConvertTemplatesToScriptsTask task = createTask(project)
+            task.classpath = configuration.asFileTree
+            task.source = project.fileTree templatesSrcDir
+            task.destinationDir = classDestDir
 
         when:
-            task.precompile()
+            task.compile()
 
         then:
-            new File(classDestDir, '$gtpl$datetime.class').exists()
-            new File(classDestDir.absolutePath + '/pkg', '$gtpl$datetime.class').exists()
+            new File(task.destinationDir, '$gtpl$datetime.groovy').exists()
+            new File(task.destinationDir, 'pkg/$gtpl$datetime.groovy').exists()
     }
     
     def "Test fail precompilation"() {
@@ -80,14 +79,13 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
             def classDestDir = new File(dir, '/classes')
             classDestDir.mkdirs()
 
-            GaelykPrecompileTemplateTask task = createTask(project)
-            task.groovyClasspath = configuration.asFileTree
-            task.runtimeClasspath = project.files([])
-            task.srcDir = templatesSrcDir
-            task.destDir = classDestDir
+            ConvertTemplatesToScriptsTask task = createTask(project)
+            task.classpath = configuration.asFileTree
+            task.source = project.fileTree templatesSrcDir
+            task.destinationDir = classDestDir
 
         when:
-            task.precompile()
+            task.compile()
 
         then:
             def e = thrown(GroovyRuntimeException)
@@ -99,8 +97,8 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
     def "Get script name"() {
         given:
             Project project = ProjectBuilder.builder().build()
-            GaelykPrecompileTemplateTask task = createTask(project)
-            def info =  task.getTemplateScriptInfo(new File('gtpls'), new File('gtpls/xyz/template.gtpl'))
+            ConvertTemplatesToScriptsTask task = createTask(project)
+            def info =  task.getTemplateScriptInfo('/xyz/template.gtpl')
         expect:
             info.dir == 'xyz'
             info.file == '$gtpl$template.groovy'
@@ -109,7 +107,7 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
     def "Dir to pkg"() {
         given:
             Project project = ProjectBuilder.builder().build()
-            GaelykPrecompileTemplateTask task = createTask(project)
+            ConvertTemplatesToScriptsTask task = createTask(project)
         expect:
             task.dirToPackage('') == ''
             task.dirToPackage('pkg') == 'pkg'
@@ -119,7 +117,7 @@ class GaelykPrecompileTemplateTaskSpec extends Specification {
         
     }
 
-    private GaelykPrecompileTemplateTask createTask(Project project) {
-        project.task('precompile', type: GaelykPrecompileTemplateTask)
+    private ConvertTemplatesToScriptsTask createTask(Project project) {
+        project.task('convert', type: ConvertTemplatesToScriptsTask)
     }
 }

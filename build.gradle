@@ -29,7 +29,7 @@ dependencies {
     compile gradleApi()
     compile 'org.gradle.api.plugins:gradle-gae-plugin:0.7.6'
 
-    testCompile "org.spockframework:spock-core:0.7-groovy-2.0",
+    testCompile "org.spockframework:spock-core:0.7-groovy-1.8",
                 "junit:junit:4.10"
 }
 

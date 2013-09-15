@@ -16,7 +16,7 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
     
     protected void compile () {
         TemplateToScriptConverter converter = new TemplateToScriptConverter(getClasspath())
-        File dir = new File(project.buildDir.absolutePath + PRECOMPILE_TEMPLATE_STAGE_DIR)
+        File dir = getDestinationDir()
         dir.deleteDir()
         dir.mkdirs()
 
@@ -24,7 +24,7 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
             if (details.directory || !details.name.endsWith("." + templateExtension)) {
                 return
             }
-            def info = getTemplateScriptInfo("/" + details.relativePath.pathString, details.file)
+            def info = getTemplateScriptInfo("/" + details.relativePath.pathString)
             
             File parent = dir
             
@@ -40,7 +40,7 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
         }
     }
 
-    def getTemplateScriptInfo(String relativePath, File tplFile){
+    def getTemplateScriptInfo(String relativePath){
         String pattern = "[/\\\\]?(.*)[/\\\\](.+?)\\." + templateExtension
         Matcher m = relativePath =~ (pattern)
 
@@ -49,13 +49,17 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
         }
         null
     }
+    
+    File getStageDir() {
+        new File(project.buildDir.absolutePath + PRECOMPILE_TEMPLATE_STAGE_DIR)
+    }
 
     String dirToPackage(String dir) {
         dir.replace(File.separator, '.').replaceAll(/[^a-zA-Z0-9\.]/, '_').toLowerCase()
     }
     
     static String getPrefix(String ext) {
-        '$' + ext + ' $'
+        '$' + ext + '$'
     }
 
 }
