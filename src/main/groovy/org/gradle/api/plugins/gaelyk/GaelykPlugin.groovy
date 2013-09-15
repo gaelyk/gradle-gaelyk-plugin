@@ -27,6 +27,7 @@ import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.Sync
+import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.plugins.*
 import org.gradle.api.plugins.gaelyk.tasks.*
 import static org.gradle.api.plugins.gae.GaePlugin.GAE_RUN
@@ -47,14 +48,16 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
-    static final String GAELYK_PRECOMPILE_GROOVLET = "gaelykPrecompileGroovlet"
-    static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplate"
+    static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplates"
+    static final String GAELYK_CONVERT_TEMPLATES = "gaelykConvertTemplates"
     static final String GAELYK_COPY_RUNTIME_LIBRARIES = "gaelykCopyRuntimeLibraries"
 
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
     static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
     static final String APPENGINE_GENERATED_RELATIVE_PATH = 'WEB-INF/appengine-generated'
+    
+    static final String COMPILE_GROOVY_TASK_NAME = "compileGroovy"
     
     // needs to be repeated because GAE plugin must be able to run even if fatjar is not installed
     // this is needed e.g. when building gaelyk binary plugins
@@ -76,13 +79,21 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykListPluginsTask(project)
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
-        configureGaelykPrecompileGroovlet(project, gaelykPluginConvention)
+        configureConvertTemplatesToScript(project, gaelykPluginConvention)
         configureGaelykPrecompileTemplate(project, gaelykPluginConvention)
         configureFatJarPlugin(project, gaelykPluginConvention)
         configureGaePlugin(project, gaelykPluginConvention)
         configureMainSourceSet(project, gaelykPluginConvention)
         configureCleanTask(project, gaelykPluginConvention)
         configureGaelykCopyRuntimeLibraries(project, gaelykPluginConvention)
+        
+        project.gradle.taskGraph.whenReady {
+            if  (!gaeRunIsInGraph(project) || !gaelykPluginConvention.rad) {
+                GroovyCompile groovyCompileTask = project.tasks.findByName(COMPILE_GROOVY_TASK_NAME)
+                ConvertTemplatesToScriptsTask convertTask = project.tasks.findByName(GAELYK_CONVERT_TEMPLATES)
+                groovyCompileTask.source(new File(getWarConvention(project).webAppDir, GROOVLET_DIRECTORY_RELATIVE_PATH))
+            }
+        }
     }
 
     private void configureGaelykInstallPluginTask(final Project project) {
@@ -90,7 +101,7 @@ class GaelykPlugin implements Plugin<Project> {
             gaelykInstallPluginTask.conventionMapping.map("plugin") { getPluginProperty(project) }
         }
 
-        GaelykInstallPluginTask gaelykInstallPluginTask = project.tasks.add(GAELYK_INSTALL_PLUGIN, GaelykInstallPluginTask.class)
+        GaelykInstallPluginTask gaelykInstallPluginTask = project.tasks.create(GAELYK_INSTALL_PLUGIN, GaelykInstallPluginTask.class)
         gaelykInstallPluginTask.description = "Installs Gaelyk plugin."
         gaelykInstallPluginTask.group = GAELYK_GROUP
     }
@@ -117,42 +128,56 @@ class GaelykPlugin implements Plugin<Project> {
         gaelykListPluginsTask.group = GAELYK_GROUP
     }
 
-    private void configureGaelykPrecompileGroovlet(Project project, GaelykPluginConvention pluginConvention) {
-        project.tasks.withType(GaelykPrecompileGroovletTask).whenTaskAdded { GaelykPrecompileGroovletTask gaelykPrecompileGroovletTask ->
-            gaelykPrecompileGroovletTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompileGroovletTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
-            gaelykPrecompileGroovletTask.conventionMapping.map("srcDir") { new File(getWarConvention(project).webAppDir, GROOVLET_DIRECTORY_RELATIVE_PATH) }
-            gaelykPrecompileGroovletTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
+    private void configureGaelykPrecompileTemplate(Project project, GaelykPluginConvention pluginConvention) {
+        GroovyCompile groovyCompileTask = project.tasks.findByName(COMPILE_GROOVY_TASK_NAME)
+        ConvertTemplatesToScriptsTask convertTask = project.tasks.findByName(GAELYK_CONVERT_TEMPLATES)
+        
+        project.tasks.withType(GroovyCompile).whenTaskAdded { GroovyCompile gaelykPrecompileTask ->
+            if (gaelykPrecompileTask.name != GAELYK_PRECOMPILE_TEMPLATE) return
+            
+            
+            gaelykPrecompileTask.conventionMapping.map("classpath") { groovyCompileTask.getClasspath() }
+            gaelykPrecompileTask.conventionMapping.map("groovyClasspath") { groovyCompileTask.getGroovyClasspath() }
+            gaelykPrecompileTask.conventionMapping.map("groovyOptions") { groovyCompileTask.getGroovyOptions() }
+            gaelykPrecompileTask.conventionMapping.map("sourceCompatibility") { groovyCompileTask.getSourceCompatibility() }
+            gaelykPrecompileTask.conventionMapping.map("targetCompatibility") { groovyCompileTask.getTargetCompatibility() }
+            gaelykPrecompileTask.conventionMapping.map("options") { groovyCompileTask.getOptions() }
+            gaelykPrecompileTask.conventionMapping.map("destinationDir") { groovyCompileTask.getDestinationDir() }
+            
+            gaelykPrecompileTask.conventionMapping.map("source") { project.fileTree(convertTask.getDestinationDir()) }
         }
 
-        def gaelykPrecompileGroovletTask = project.tasks.create(GAELYK_PRECOMPILE_GROOVLET, GaelykPrecompileGroovletTask)
-        gaelykPrecompileGroovletTask.description = "Precompiles Groovlets."
-        gaelykPrecompileGroovletTask.group = GAELYK_GROUP
-
-        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileGroovletTask)
+        def gaelykPrecompileTemplatesTask = project.tasks.create(GAELYK_PRECOMPILE_TEMPLATE, GroovyCompile)
+        gaelykPrecompileTemplatesTask.description = "Precompiles groovy templates scripts generated by convert task."
+        gaelykPrecompileTemplatesTask.group = GAELYK_GROUP
+        
+        gaelykPrecompileTemplatesTask.dependsOn convertTask
+        project.tasks.findByName(WAR_TASK_NAME).dependsOn(gaelykPrecompileTemplatesTask)
+        project.tasks.findByName(FATJAR_PREPARE_FILES)?.dependsOn(gaelykPrecompileTemplatesTask)
     }
     
-    private void configureGaelykPrecompileTemplate(final Project project, GaelykPluginConvention pluginConvention) {
-        project.tasks.withType(GaelykPrecompileTemplateTask).whenTaskAdded { GaelykPrecompileTemplateTask gaelykPrecompilTemplateTask ->
-            gaelykPrecompilTemplateTask.conventionMapping.map("groovyClasspath") { project.configurations.groovy.asFileTree }
-            gaelykPrecompilTemplateTask.conventionMapping.map("runtimeClasspath") { createRuntimeClasspath(project) }
-            gaelykPrecompilTemplateTask.conventionMapping.map("srcDir") { getWarConvention(project).webAppDir }
-            gaelykPrecompilTemplateTask.conventionMapping.map("destDir") { project.sourceSets.main.output.classesDir }
+    private void configureConvertTemplatesToScript(final Project project, GaelykPluginConvention pluginConvention) {
+        GroovyCompile groovyCompileTask = project.tasks.findByName(COMPILE_GROOVY_TASK_NAME)
+
+        project.tasks.withType(ConvertTemplatesToScriptsTask).whenTaskAdded { ConvertTemplatesToScriptsTask convertTemplateToScript ->
+            
+            convertTemplateToScript.conventionMapping.map("classpath") { createRuntimeClasspath(project, convertTemplateToScript.getTemplateExtension()) }
+            convertTemplateToScript.conventionMapping.map("sourceCompatibility") { groovyCompileTask.getSourceCompatibility() }
+            convertTemplateToScript.conventionMapping.map("targetCompatibility") { groovyCompileTask.getTargetCompatibility() }
+            convertTemplateToScript.conventionMapping.map("destinationDir") { new File(project.buildDir.absolutePath + ConvertTemplatesToScriptsTask.PRECOMPILE_TEMPLATE_STAGE_DIR) }
+            convertTemplateToScript.conventionMapping.map("templateExtension") { pluginConvention.getTemplateExtension() }
+            convertTemplateToScript.conventionMapping.map("source") { 
+                project.fileTree(getWarConvention(project).webAppDir).matching {
+                    include "**/*." + convertTemplateToScript.getTemplateExtension()
+                } 
+            }
         }
 
-        def gaelykPrecompileTemplateTask = project.tasks.create(GAELYK_PRECOMPILE_TEMPLATE, GaelykPrecompileTemplateTask)
-        gaelykPrecompileTemplateTask.description = "Precompiles Groovlets."
-        gaelykPrecompileTemplateTask.group = GAELYK_GROUP
-
-        weavePrecompileTaskIntoGraph(project, pluginConvention, gaelykPrecompileTemplateTask)
-    }
-
-    private void weavePrecompileTaskIntoGraph(Project project, GaelykPluginConvention pluginConvention, Task precompileTask) {
-        precompileTask.onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
-
-        precompileTask.dependsOn(project.tasks.findByName(CLASSES_TASK_NAME))
-        project.tasks.findByName(WAR_TASK_NAME).dependsOn(precompileTask)
-        project.tasks.findByName(FATJAR_PREPARE_FILES).dependsOn(precompileTask)
+        def convertTemplateToScript = project.tasks.create(GAELYK_CONVERT_TEMPLATES, ConvertTemplatesToScriptsTask)
+        convertTemplateToScript.description = "Converts templates to scripts."
+        convertTemplateToScript.group = GAELYK_GROUP
+        convertTemplateToScript.onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
+        convertTemplateToScript.dependsOn groovyCompileTask
     }
 
     private void configureGaelykCreateControllerTask(final Project project) {
@@ -195,15 +220,17 @@ class GaelykPlugin implements Plugin<Project> {
      *
      * @return Classpath
      */
-    private FileCollection createRuntimeClasspath(Project project) {
+    private FileCollection createRuntimeClasspath(Project project, String templateExtension) {
         FileCollection runtimeClasspath = project.files(project.sourceSets.main.output.classesDir)
         runtimeClasspath += project.configurations.runtime
-        runtimeClasspath
+        runtimeClasspath.filter { File it ->
+            !it.name.startsWith(ConvertTemplatesToScriptsTask.getPrefix(templateExtension))
+        }
     }
 
     private void configureFatJarPlugin(Project project, GaelykPluginConvention pluginConvention) {
         [FATJAR_PREPARE_FILES, FATJAR_FAT_JAR, FATJAR_SLIM_WAR].each { taskName ->
-            project.tasks.findByName(taskName).onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
+            project.tasks.findByName(taskName)?.onlyIf { !gaeRunIsInGraph(project) || !pluginConvention.rad }
         }
     }
 

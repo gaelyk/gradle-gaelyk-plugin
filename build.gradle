@@ -6,7 +6,7 @@ apply plugin: 'nexus'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
-version = '0.4.2'
+version = '0.5'
 
 buildscript {
     repositories {
@@ -25,9 +25,8 @@ repositories {
 }
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.1.6'
+    compile localGroovy()
     compile gradleApi()
-    compile 'com.jcraft:jsch:0.1.44-1'
     compile 'org.gradle.api.plugins:gradle-gae-plugin:0.7.6'
 
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0",

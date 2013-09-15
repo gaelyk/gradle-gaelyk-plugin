@@ -15,6 +15,7 @@
  */
 package org.gradle.api.plugins.gaelyk
 
+import org.gradle.api.plugins.gaelyk.tasks.ConvertTemplatesToScriptsTask;
 import org.gradle.api.plugins.gaelyk.tools.PluginManager
 
 /**
@@ -24,6 +25,7 @@ import org.gradle.api.plugins.gaelyk.tools.PluginManager
  */
 class GaelykPluginConvention {
     boolean rad = true
+    String templateExtension = ConvertTemplatesToScriptsTask.DEFAULT_GROOVY_TEMPLATE_FILE_EXT
 	
 	def gaelyk(Closure closure) {
         closure.delegate = this
