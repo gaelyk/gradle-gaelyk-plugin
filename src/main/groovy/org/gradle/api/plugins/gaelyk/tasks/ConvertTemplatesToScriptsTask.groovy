@@ -36,7 +36,10 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
             assert parent.exists()
             File file = new File(parent, info.file)
             assert file.createNewFile()
-            file.write converter.getTemplateAsScript(details.file.text, dirToPackage(info.dir), details.file, new File(details.file.absolutePath - details.relativePath.pathString))
+            getLogger().info("Converting template $details.file")
+            getLogger().debug("Absolute path is $details.file.absolutePath")
+            getLogger().debug("Relative path is $details.relativePath.pathString")
+            file.write converter.getTemplateAsScript(details.file.text, dirToPackage(info.dir), details.file, new File(details.file.absolutePath.replaceAll("\\\\", '/') - details.relativePath.pathString))
         }
     }
 
@@ -63,3 +66,5 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
     }
 
 }
+
+
