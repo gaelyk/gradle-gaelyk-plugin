@@ -111,6 +111,7 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
         expect:
             task.dirToPackage('') == ''
             task.dirToPackage('pkg') == 'pkg'
+            task.dirToPackage('pkg\\next\\other') == 'pkg.next.other'
             task.dirToPackage('pkg/next/other') == 'pkg.next.other'
             task.dirToPackage('WEB-INF/something') == 'web_inf.something'
             task.dirToPackage('I"m extra obscure') == 'i_m_extra_obscure'

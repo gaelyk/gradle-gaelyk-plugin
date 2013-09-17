@@ -58,7 +58,7 @@ class ConvertTemplatesToScriptsTask extends AbstractCompile {
     }
 
     String dirToPackage(String dir) {
-        dir.replace(File.separator, '.').replaceAll(/[^a-zA-Z0-9\.]/, '_').toLowerCase()
+        dir.replaceAll(/[\\\/]/, '.').replaceAll(/[^a-zA-Z0-9\.]/, '_').toLowerCase()
     }
     
     static String getPrefix(String ext) {
