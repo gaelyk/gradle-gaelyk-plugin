@@ -75,9 +75,9 @@ abstract class IntegrationSpec extends Specification {
             apply plugin: GaelykPlugin
 
             dependencies {
-                groovy 'org.codehaus.groovy:groovy-all:1.8.6'
-                compile 'org.gaelyk:gaelyk:1.2'
-                gaeSdk "com.google.appengine:appengine-java-sdk:1.6.6"
+                groovy 'org.codehaus.groovy:groovy-all:2.1.8'
+                compile 'org.gaelyk:gaelyk:2.0'
+                gaeSdk "com.google.appengine:appengine-java-sdk:1.6.8"
             }
 
             repositories {
@@ -91,19 +91,7 @@ abstract class IntegrationSpec extends Specification {
             gaeRun.onlyIf { false }
         '''
     }
-
-    protected radMode(rad) {
-        buildFile << """
-            gaelyk {
-                rad = $rad
-            }
-        """
-    }
-
-    protected nonRadMode() {
-        radMode false
-    }
-
+    
     protected BuildResult runTasks(String... tasks) {
         BuildResult result = launcher(tasks).run()
         assert !result.failure

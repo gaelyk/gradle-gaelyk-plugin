@@ -6,7 +6,7 @@ apply plugin: 'nexus'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
-version = '0.5.1'
+version = '0.6-SNAPSHOT'
 
 buildscript {
     repositories {
@@ -25,11 +25,18 @@ repositories {
 }
 
 dependencies {
-    compile localGroovy()
+    def localGroovy = localGroovy()
+    compile localGroovy
     compile gradleApi()
-    compile 'org.gradle.api.plugins:gradle-gae-plugin:0.7.6'
+    compile 'com.google.appengine:gradle-appengine-plugin:1.8.6'
 
-    testCompile "org.spockframework:spock-core:0.7-groovy-1.8",
+    File localGroovyJar     =  localGroovy.resolve().asList().first()
+    String spockQualifier   = '2.0'
+    if (localGroovyJar.name.contains('-1.8')) {
+        spockQualifier = '1.8'
+    }
+    
+    testCompile "org.spockframework:spock-core:0.7-groovy-${spockQualifier}",
                 "junit:junit:4.10"
 }
 
@@ -63,7 +70,7 @@ idea {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.7'
+    gradleVersion = '1.8'
 }
 
 modifyPom {

@@ -24,7 +24,6 @@ import org.gradle.api.plugins.gaelyk.tools.PluginManager
  * @author Benjamin Muschko
  */
 class GaelykPluginConvention {
-    boolean rad = true
     String templateExtension = ConvertTemplatesToScriptsTask.DEFAULT_GROOVY_TEMPLATE_FILE_EXT
 	
 	def gaelyk(Closure closure) {
