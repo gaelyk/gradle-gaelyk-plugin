@@ -8,7 +8,7 @@ The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) proj
 configuration of [FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set 
 to better fit Gaelyk application needs. Finally it adds some Gaelyk specific tasks.
 
-Gaelyk plugin applies Gaelyk plugin to provide tasks for running the application, uploading it to GAE etc. - see
+Gaelyk plugin applies GAE plugin to provide tasks for running the application, uploading it to GAE etc. - see
 [Gradle GAE plugin's documentation](https://github.com/bmuschko/gradle-gae-plugin) for details.
 
 
