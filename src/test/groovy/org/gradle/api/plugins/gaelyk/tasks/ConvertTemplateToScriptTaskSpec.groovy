@@ -16,13 +16,17 @@
 package org.gradle.api.plugins.gaelyk.tasks
 
 import org.gradle.api.Project
-import org.gradle.api.plugins.gaelyk.tools.TempDir
 import org.gradle.testfixtures.ProjectBuilder
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import org.gradle.api.plugins.GroovyBasePlugin
 import org.gradle.api.file.FileCollection
 
 class ConvertTemplateToScriptTaskSpec extends Specification {
+
+    @Rule TemporaryFolder tmp = new TemporaryFolder()
+
     def "Test precompile task"() {
         given:
             Project project = ProjectBuilder.builder().build()
@@ -30,7 +34,7 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
             groovyBasePlugin.apply(project)
             def configuration = project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
 
-            def dir = TempDir.createNew("precompile-task")
+            def dir = tmp.newFolder("precompile-task")
             def templatesSrcDir = new File(dir, '/templates')
             templatesSrcDir.mkdirs()
             new File(templatesSrcDir, 'datetime.gtpl').append('<html><body>Hello $world</body></html>')
@@ -61,7 +65,7 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
             groovyBasePlugin.apply(project)
             def configuration = project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
 
-            def dir = TempDir.createNew("precompile-task")
+            def dir = tmp.newFolder("precompile-task")
             def templatesSrcDir = new File(dir, '/templates')
             templatesSrcDir.mkdirs()
             def datetimeTemplate = new File(templatesSrcDir, 'datetime.gtpl')

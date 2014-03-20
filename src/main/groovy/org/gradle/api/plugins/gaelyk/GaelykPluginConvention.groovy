@@ -16,7 +16,6 @@
 package org.gradle.api.plugins.gaelyk
 
 import org.gradle.api.plugins.gaelyk.tasks.ConvertTemplatesToScriptsTask;
-import org.gradle.api.plugins.gaelyk.tools.PluginManager
 
 /**
  * Defines Gaelyk plugin convention.

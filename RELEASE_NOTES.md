@@ -1,4 +1,14 @@
-### Version 0.4.1 (SNAPSHOT)
+### Version 0.6
+
+* Switched to new official Google's Gradle Appengine Plugin
+* Removed plugin related tasks as binary plugins are now preferred
+
+### Version 0.5
+
+* Simplified build process by using standard `groovyCompile` task for compiling groovlets
+* Ability to specify template extension
+
+### Version 0.4.1
 
 * Better reporting of templates' compilation errors during `gaelykPrecompileTemplates` task - [Issue 23](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/23)
 * Inlined static templates' includes such as `<% include 'foo.gtpl' %>` - [Issue 10](https://github.com/bmuschko/gradle-gaelyk-plugin/issues/10)

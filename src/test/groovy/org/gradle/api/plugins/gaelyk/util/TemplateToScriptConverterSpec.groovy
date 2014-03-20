@@ -2,13 +2,14 @@ package org.gradle.api.plugins.gaelyk.util
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.GroovyBasePlugin
-import org.gradle.api.plugins.gaelyk.tools.TempDir;
 import org.gradle.testfixtures.ProjectBuilder
-
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 class TemplateToScriptConverterSpec extends Specification {
 
+    @Rule TemporaryFolder tmp = new TemporaryFolder()
     
     def "Handle includes"(){
         String baseTemplateText = '''
@@ -31,7 +32,7 @@ class TemplateToScriptConverterSpec extends Specification {
         
         TemplateToScriptConverter converter = [ buildClasspath()]
         
-        File dir = TempDir.createNew("precompile-task")
+        File dir = tmp.newFolder("precompile-task")
         File templatesSrcDir = new File(dir, '/templates')
         templatesSrcDir.mkdirs()
         File original = new File(templatesSrcDir, 'base.gtpl')

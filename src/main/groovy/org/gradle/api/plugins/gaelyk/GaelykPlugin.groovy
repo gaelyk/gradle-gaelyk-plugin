@@ -15,7 +15,6 @@
  */
 package org.gradle.api.plugins.gaelyk
 
-import static org.gradle.api.plugins.JavaPlugin.CLASSES_TASK_NAME
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
 
 import org.gradle.api.Plugin
@@ -26,9 +25,6 @@ import org.gradle.api.plugins.gaelyk.tasks.*
 import org.gradle.api.plugins.gaelyk.template.GaelykControllerCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.Sync
 import org.gradle.api.tasks.compile.GroovyCompile
 
 import com.google.appengine.AppEnginePlugin
@@ -42,20 +38,13 @@ import com.google.appengine.task.RunTask
  */
 class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_GROUP = "Gaelyk"
-    static final String GAELYK_INSTALL_PLUGIN = "gaelykInstallPlugin"
-    static final String GAELYK_UNINSTALL_PLUGIN = "gaelykUninstallPlugin"
-    static final String GAELYK_LIST_INSTALLED_PLUGINS = "gaelykListInstalledPlugins"
-    static final String GAELYK_LIST_PLUGINS = "gaelykListPlugins"
+
     static final String GAELYK_CREATE_CONTROLLER = "gaelykCreateController"
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
     static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplates"
     static final String GAELYK_CONVERT_TEMPLATES = "gaelykConvertTemplates"
-    static final String GAELYK_COPY_RUNTIME_LIBRARIES = "gaelykCopyRuntimeLibraries"
 
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
-    static final String OUTPUT_DIRECTORY_RELATIVE_PATH = 'WEB-INF/classes'
-    static final String LIBRARIES_DIRECTORY_RELATIVE_PATH = 'WEB-INF/lib'
-    static final String APPENGINE_GENERATED_RELATIVE_PATH = 'WEB-INF/appengine-generated'
     
     static final String COMPILE_GROOVY_TASK_NAME = "compileGroovy"
    
@@ -67,11 +56,6 @@ class GaelykPlugin implements Plugin<Project> {
 
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
-
-        configureGaelykInstallPluginTask(project)
-        configureGaelykUninstallPluginTask(project)
-        configureGaelykListInstalledPluginsTask(project)
-        configureGaelykListPluginsTask(project)
         
         configureGaelykCreateControllerTask(project)
         configureGaelykCreateViewTask(project)
@@ -86,38 +70,6 @@ class GaelykPlugin implements Plugin<Project> {
                 groovyCompileTask.source(new File(getWarConvention(project).webAppDir, GROOVLET_DIRECTORY_RELATIVE_PATH))
             }
         }
-    }
-
-    private void configureGaelykInstallPluginTask(final Project project) {
-        project.tasks.withType(GaelykInstallPluginTask.class).whenTaskAdded { GaelykInstallPluginTask gaelykInstallPluginTask ->
-            gaelykInstallPluginTask.conventionMapping.map("plugin") { getPluginProperty(project) }
-        }
-
-        GaelykInstallPluginTask gaelykInstallPluginTask = project.tasks.create(GAELYK_INSTALL_PLUGIN, GaelykInstallPluginTask.class)
-        gaelykInstallPluginTask.description = "Installs Gaelyk plugin."
-        gaelykInstallPluginTask.group = GAELYK_GROUP
-    }
-
-    private void configureGaelykUninstallPluginTask(final Project project) {
-        project.tasks.withType(GaelykUninstallPluginTask.class).whenTaskAdded { GaelykUninstallPluginTask gaelykUninstallPluginTask ->
-            gaelykUninstallPluginTask.conventionMapping.map("plugin") { getPluginProperty(project) }
-        }
-
-        GaelykUninstallPluginTask gaelykUninstallPluginTask = project.tasks.create(GAELYK_UNINSTALL_PLUGIN, GaelykUninstallPluginTask)
-        gaelykUninstallPluginTask.description = "Uninstalls Gaelyk plugin."
-        gaelykUninstallPluginTask.group = GAELYK_GROUP
-    }
-
-    private void configureGaelykListInstalledPluginsTask(final Project project) {
-        GaelykListInstalledPluginsTask gaelykListInstalledPluginsTask = project.tasks.create(GAELYK_LIST_INSTALLED_PLUGINS, GaelykListInstalledPluginsTask)
-        gaelykListInstalledPluginsTask.description = "Lists installed Gaelyk plugins."
-        gaelykListInstalledPluginsTask.group = GAELYK_GROUP
-    }
-
-    private void configureGaelykListPluginsTask(final Project project) {
-        GaelykListPluginsTask gaelykListPluginsTask = project.tasks.create(GAELYK_LIST_PLUGINS, GaelykListPluginsTask)
-        gaelykListPluginsTask.description = "Lists available Gaelyk plugins from catalogue."
-        gaelykListPluginsTask.group = GAELYK_GROUP
     }
 
     private void configureGaelykPrecompileTemplate(Project project, GaelykPluginConvention pluginConvention) {
@@ -196,10 +148,6 @@ class GaelykPlugin implements Plugin<Project> {
 
     private String getDirProperty(final Project project) {
         project.hasProperty("dir") ? project.property("dir") : null
-    }
-
-    private String getPluginProperty(final Project project) {
-        project.hasProperty("plugin") ? project.property("plugin") : null
     }
 
     private WarPluginConvention getWarConvention(Project project) {
