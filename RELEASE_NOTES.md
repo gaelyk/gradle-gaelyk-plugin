@@ -2,6 +2,7 @@
 
 * Switched to new official Google's Gradle Appengine Plugin
 * Removed plugin related tasks as binary plugins are now preferred
+* Changes in sources are synchronized to `exploded-app` directory so they are not polluted anymore
 
 ### Version 0.5
 

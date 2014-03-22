@@ -25,11 +25,12 @@ it from Maven Central:
 
     buildscript {
         repositories {
+            jcenter()
             mavenCentral()
         }
 
         dependencies {
-            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.5'
+            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.6'
         }
     }
 
@@ -37,56 +38,29 @@ it from Maven Central:
 
 The Gaelyk plugin defines the following convention properties in the `gaelyk` closure:
 
-* `rad`: specifies if the application should be started in Rapid Application Development mode when using `gaeRun` task (defaults to true).
- If you run in RAD mode any changes made to your groovlets, templates and static resources (but not to classes) in the source directory will be
- instantly visible on a page reload. The downside is that your source directory is polluted with jars in 'WEB-INF/lib' and compiled
- classes in 'WEB-INF/classes'. If you wish to avoid that set `rad` property to false. Doing so will mean that application's war
- file will be exploded in `build/exploded-war` directory which in turn will be used as the application root when running locally (with `gaeRun`).
 * `templateExtension`: the extension of the templates which should be precompiled
 
 ## Integration with other Gradle plugins
-* Gaelyk plugin uses `webAppDir` convention property of [War plugin](http://gradle.org/docs/current/userguide/war_plugin.html)
-(which is applied to the project by GAE plugin) to determine the location of project's webapp dir. The default location 
-is `src/main/webapp` and can be changed using `webAppDirName` convention property of War plugin.
-* When running in RAD mode (see [conventions](#convention-properties) for details) GAE plugin's `warDir` convention property is set to the value of
-`webAppDir` War plugin's property. Please use `webAppDirName` convention property of War plugin to change `warDir` property of GAE plugin.
 * GAE plugin's `dowloadSdk` property is set to true by default
-* GAE plugin's `optimizeWar` property is set to true by default
-* FATJar plugin's tasks are skipped when running in RAD mode and starting development server as the server works against webapp dir
-
-## Modifications to project configuration
-When running in RAD mode (see [conventions](#convention-properties) for details) main source set output directory as well as
-main resources output directory is set to `<webAppDir>/WEB-INF/classes` - this is required by Gaelyk to run development server
-against webapp dir which in turn enables reloading of changes to groovlets and templates code without restarting the server.
 
 ## Dependencies you need to specify
 When applying gaelyk plugin to your project remember that you have to specify the folowing dependencies:
 * `compile` - with groovy library specified
-* `gaeSdk` - because GAE plugin requires it
+* `appengineSdk` - because GAE plugin requires it
 
 To be able to develop a Gaelyk application you also need to add a `compile` dependency on Gaelyk. The dependencies
 section of your build might look like this:
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:1.8.6'
-        gaeSdk "com.google.appengine:appengine-java-sdk:1.8.4"
-        compile 'org.gaelyk:gaelyk:2.0'
+        compile 'org.codehaus.groovy:groovy-all:2.2.2'
+        gaeSdk "com.google.appengine:appengine-java-sdk:1.9.1"
+        compile 'org.gaelyk:gaelyk:2.1'
     }
 
 ## Tasks
-* `gaelykListPlugins`: Shows all available plugins from the Gaelyk plugins catalogue.
-* `gaelykInstallPlugin`: Installs plugin provided by the command line property `plugin`. Plugin must be plugin identificator from the catalgoue or ZIP
-archive either on the file system or on the web.
- _Example:_ `gradle gaelykInstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
-installs the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin).
-* `gaelykUninstallPlugin`: Uninstalls plugin specified by given `path` or `name` provided by the
- command line property `plugin`. Path or name can easily be determined by running the `gaelykListInstalledPlugins` task.
- The name is the name of the original file without the ZIP extension.
- _Example:_ `gradle gaelykUninstallPlugin -Pplugin=http://cloud.github.com/downloads/bmuschko/gaelyk-jsonlib-plugin/gaelyk-jsonlib-plugin-0.2.zip`
-uninstalls the [JSON plugin](https://github.com/bmuschko/gaelyk-jsonlib-plugin). `gradle gaelykUninstallPlugin -Pplugin=gaelyk-jsonlib-plugin-0.2` would do the same work.
-* `gaelykListInstalledPlugins`: Shows plugins that have been installed by the `gaelykInstallPlugin` task.
+* `gaelykConvertTemplates`: Prepares templates for precompilation by converting them to scripts.
 * `gaelykPrecompileTemplates`: Precompiles Groovy templates to minimize startup costs. All static templates' includes such as `<% include 'foo.gtpl' %>` are inlined for better performance.
-* `gaelykCopyRuntimeLibraries`: Synchronises runtime libraries in webapp directory.
+* `gaelykSynchronizeResources`: Synchronizes changes from source directories to exploded app ones. Only web projects are supported at the moment.
 
 ## Task Rules
 

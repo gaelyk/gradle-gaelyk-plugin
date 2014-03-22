@@ -8,6 +8,7 @@ targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
 version = '0.6-SNAPSHOT'
 
+
 buildscript {
     repositories {
         mavenCentral()
@@ -20,13 +21,17 @@ buildscript {
 
 repositories {
     mavenCentral()
+    maven { url "http://dl.bintray.com/kdabir/maven" }
 }
 
 dependencies {
     def localGroovy = localGroovy()
     compile localGroovy
     compile gradleApi()
+
     compile 'com.google.appengine:gradle-appengine-plugin:1.9.0'
+
+    compile 'directree:directree:0.2-alpha-1' // todo - change when released
 
     File localGroovyJar     =  localGroovy.resolve().asList().first()
     String spockQualifier   = '2.0'
@@ -49,24 +54,6 @@ jar {
     }
 }
 
-idea {
-    project {
-        jdkName = '1.6'
-  
-        ipr.withXml { provider ->
-            def node = provider.asNode()
-
-            // Use GIT
-            def vcsConfig = node.component.find { it.'@name' == 'VcsDirectoryMappings' }
-            vcsConfig.mapping[0].'@vcs' = 'Git'
-
-            // Set Gradle home
-            def gradleSettings = node.appendNode('component', [name: 'GradleSettings'])
-            gradleSettings.appendNode('option', [name: 'SDK_HOME', value: gradle.gradleHomeDir])
-        }
-    }
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '1.10'
 }
@@ -75,13 +62,13 @@ modifyPom {
     project {
         name 'Gradle Gaelyk plugin'
         description 'Gradle plugin that provides tasks for managing Gaelyk projects.'
-        url 'https://github.com/bmuschko/gradle-gaelyk-plugin'
+        url 'https://github.com/gaelyk/gradle-gaelyk-plugin'
         inceptionYear '2011'
 
         scm {
-            url 'https://github.com/bmuschko/gradle-gaelyk-plugin'
-            connection 'scm:https://bmuschko@github.com/bmuschko/gradle-gaelyk-plugin.git'
-            developerConnection 'scm:git://github.com/bmuschko/gradle-gaelyk-plugin.git'
+            url 'https://github.com/gaelyk/gradle-gaelyk-plugin'
+            connection 'scm:https://gaelyk@github.com/gaelyk/gradle-gaelyk-plugin.git'
+            developerConnection 'scm:git://github.com/gaelyk/gradle-gaelyk-plugin.git'
         }
 
         licenses {

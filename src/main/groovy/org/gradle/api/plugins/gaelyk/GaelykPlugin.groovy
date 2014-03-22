@@ -15,6 +15,8 @@
  */
 package org.gradle.api.plugins.gaelyk
 
+import com.google.appengine.task.ExplodeAppTask
+
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
 
 import org.gradle.api.Plugin
@@ -43,6 +45,7 @@ class GaelykPlugin implements Plugin<Project> {
     static final String GAELYK_CREATE_VIEW = "gaelykCreateView"
     static final String GAELYK_PRECOMPILE_TEMPLATE = "gaelykPrecompileTemplates"
     static final String GAELYK_CONVERT_TEMPLATES = "gaelykConvertTemplates"
+    static final String GAELYK_SYNCHRONIZE_RESOURCES = "gaelykSynchronizeResources"
 
     static final String GROOVLET_DIRECTORY_RELATIVE_PATH = 'WEB-INF/groovy'
     
@@ -61,8 +64,11 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         
         configureConvertTemplatesToScript(project, gaelykPluginConvention)
+        configureGaelykSynchronizeResources(project)
         configureGaelykPrecompileTemplate(project, gaelykPluginConvention)
         configureAppEnginePlugin(project, gaelykPluginConvention)
+
+
         
         project.gradle.taskGraph.whenReady {
             if  (!gaeRunIsInGraph(project)) {
@@ -123,6 +129,17 @@ class GaelykPlugin implements Plugin<Project> {
         convertTemplateToScript.dependsOn groovyCompileTask
     }
 
+    private void configureGaelykSynchronizeResources(final Project project) {
+        ExplodeAppTask explode = project.tasks.findByName(AppEnginePlugin.APPENGINE_EXPLODE_WAR)
+        RunTask run = project.tasks.findByName(AppEnginePlugin.APPENGINE_RUN)
+
+        GaelykSynchronizeResourcesTask syncTask = project.tasks.create(GAELYK_SYNCHRONIZE_RESOURCES, GaelykSynchronizeResourcesTask)
+        syncTask.description = "Synchronizes changes in source directory to the exploded app directory for live reload as well as the generated data back to project root into data-backup directory"
+        syncTask.group = GAELYK_GROUP
+        syncTask.dependsOn explode
+        run.dependsOn syncTask
+    }
+
     private void configureGaelykCreateControllerTask(final Project project) {
         project.tasks.addRule("Pattern: $GAELYK_CREATE_CONTROLLER<ControllerName>: Creates a Gaelyk controller (Groovlet).") { String taskName ->
             createGaelykFile(project, taskName, GAELYK_CREATE_CONTROLLER, new GaelykControllerCreator())
@@ -181,4 +198,5 @@ class GaelykPlugin implements Plugin<Project> {
             }
         }
     }
+
 }
