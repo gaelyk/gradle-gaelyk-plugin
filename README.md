@@ -1,15 +1,17 @@
-# Gradle Gaelyk plugin [![Build Status](https://buildhive.cloudbees.com/job/bmuschko/job/gradle-gaelyk-plugin/badge/icon)](https://buildhive.cloudbees.com/job/bmuschko/job/gradle-gaelyk-plugin/)
+# Gradle Gaelyk plugin
 
 ![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
 
 The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It applies
-[Gradle GAE plugin](https://github.com/bmuschko/gradle-gae-plugin) and 
-[Groovy plugin](http://www.gradle.org/docs/current/userguide/groovy_plugin.html) to the project. It changes the 
-configuration of [FatJAR](https://github.com/musketyr/gradle-fatjar-plugin) and GAE plugins and of main source set 
-to better fit Gaelyk application needs. Finally it adds some Gaelyk specific tasks.
+[Gradle App Engine plugin](https://github.com/GoogleCloudPlatform/gradle-appengine-plugin) and
+[Groovy plugin](http://www.gradle.org/docs/current/userguide/groovy_plugin.html) to the project.
+Finally it adds some Gaelyk specific tasks.
 
-Gaelyk plugin applies GAE plugin to provide tasks for running the application, uploading it to GAE etc. - see
-[Gradle GAE plugin's documentation](https://github.com/bmuschko/gradle-gae-plugin) for details.
+Gaelyk plugin applies GAE plugin to provide tasks for running the application, uploading it to App Engine etc. - see
+[Gradle App Engine plugin's documentation](https://github.com/GoogleCloudPlatform/gradle-appengine-plugin) for details.
+To run Gaelyk application just use `appengineRun` task as in any other App Engine website. The changes in source are
+synchronized autmoatically for the websites. The plugin does not support synchronization for EAR modules yet since the
+Gradle App Engine plugin doesn't handles these situations gracefully yet.
 
 
 ## Usage
