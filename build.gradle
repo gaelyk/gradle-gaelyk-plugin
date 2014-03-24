@@ -6,22 +6,22 @@ apply plugin: 'nexus'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 group = 'org.gradle.api.plugins'
-version = '0.6-SNAPSHOT'
+version = '0.6'
 
 
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
     }
 
     dependencies {
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.2'
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
     }
 }
 
 repositories {
+    jcenter()
     mavenCentral()
-    maven { url "http://dl.bintray.com/kdabir/maven" }
 }
 
 dependencies {
@@ -30,8 +30,7 @@ dependencies {
     compile gradleApi()
 
     compile 'com.google.appengine:gradle-appengine-plugin:1.9.0'
-
-    compile 'directree:directree:0.2-alpha-1' // todo - change when released
+    compile 'io.github.kdabir.directree:directree:0.2'
 
     File localGroovyJar     =  localGroovy.resolve().asList().first()
     String spockQualifier   = '2.0'
