@@ -29,8 +29,10 @@ dependencies {
     compile localGroovy
     compile gradleApi()
 
-    compile 'com.google.appengine:gradle-appengine-plugin:1.9.0'
-    compile 'io.github.kdabir.directree:directree:0.2'
+    compile 'com.google.appengine:gradle-appengine-plugin:1.9.19'
+    compile 'io.github.kdabir.directree:directree:0.2', {
+        exclude group:'org.codehaus.groovy'
+    }
 
     File localGroovyJar     =  localGroovy.resolve().asList().first()
     String spockQualifier   = '2.0'
@@ -38,8 +40,10 @@ dependencies {
         spockQualifier = '1.8'
     }
     
-    testCompile "org.spockframework:spock-core:0.7-groovy-${spockQualifier}",
-                "junit:junit:4.10"
+    testCompile "org.spockframework:spock-core:0.7-groovy-${spockQualifier}", {
+        exclude group:'org.codehaus.groovy'
+    }
+    testCompile "junit:junit:4.10"
 }
 
 jar {
@@ -54,7 +58,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.10'
+    gradleVersion = '2.4'
 }
 
 modifyPom {

@@ -1,13 +1,11 @@
 package org.gradle.api.plugins.gaelyk.integration
 
 import org.gradle.BuildResult
-import org.gradle.GradleLauncher
-import org.gradle.StartParameter
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.execution.TaskExecutionListener
-import org.gradle.api.tasks.TaskState
-import org.gradle.initialization.DefaultGradleLauncher
+import org.gradle.tooling.BuildLauncher
+import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.ProjectConnection
+import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
@@ -20,21 +18,23 @@ abstract class IntegrationSpec extends Specification {
 
     protected List<ExecutedTask> executedTasks = []
 
-    protected GradleLauncher launcher(String... args) {
-        StartParameter startParameter = GradleLauncher.createStartParameter(args)
-        startParameter.setProjectDir(dir.root)
-        DefaultGradleLauncher launcher = GradleLauncher.newInstance(startParameter)
-        executedTasks.clear()
-        launcher.addListener(new TaskExecutionListener() {
-            void beforeExecute(Task task) {
-                executedTasks << new ExecutedTask(task: task)
-            }
+    private final OutputStream standardError = new ByteArrayOutputStream()
+    private final OutputStream standardOutput = new ByteArrayOutputStream()
 
-            void afterExecute(Task task, TaskState taskState) {
-                executedTasks.last().state = taskState
-            }
-        })
-        launcher
+    protected GradleProject run(String... tasks) {
+        ProjectConnection connection = GradleConnector.newConnector().forProjectDirectory(dir.root).connect()
+
+        try {
+            BuildLauncher builder = connection.newBuild()
+            builder.standardError = standardError
+            builder.standardOutput = standardOutput
+            builder.forTasks(tasks).run()
+            def model = connection.getModel(GradleProject)
+            return model
+        }
+        finally {
+            connection?.close()
+        }
     }
 
     protected File getBuildFile() {

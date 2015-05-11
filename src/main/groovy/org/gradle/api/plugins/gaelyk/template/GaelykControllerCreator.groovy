@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory
  */
 class GaelykControllerCreator extends GaelykFileCreatorTemplate {
     static final Logger logger = LoggerFactory.getLogger(GaelykControllerCreator.class)
+    static Logger getLogger() { logger }
 
     @Override
     File getBaseDir() {

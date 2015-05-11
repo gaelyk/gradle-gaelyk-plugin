@@ -30,7 +30,7 @@ import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.tasks.compile.GroovyCompile
 
 import com.google.appengine.AppEnginePlugin
-import com.google.appengine.AppEnginePluginConvention
+import com.google.appengine.AppEnginePluginExtension
 import com.google.appengine.task.RunTask
 
 /**
@@ -191,9 +191,9 @@ class GaelykPlugin implements Plugin<Project> {
 
     private void configureAppEnginePlugin(Project project, GaelykPluginConvention pluginConvention) {
         project.plugins.withType(AppEnginePlugin) {
-            AppEnginePluginConvention AppEnginePluginConvention = project.convention.getPlugin(AppEnginePluginConvention)
+            AppEnginePluginExtension appEnginePluginConvention = project.convention.getPlugin(AppEnginePluginExtension)
 
-            AppEnginePluginConvention.with {
+            appEnginePluginConvention.with {
                 downloadSdk = true
             }
         }

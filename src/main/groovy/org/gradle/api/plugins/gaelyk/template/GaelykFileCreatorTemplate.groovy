@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory
  */
 abstract class GaelykFileCreatorTemplate implements GaelykFileCreator {
     static final Logger logger = LoggerFactory.getLogger(GaelykFileCreatorTemplate.class)
+    static Logger getLogger() { logger }
+
     private File webAppDir
 
     @Override
