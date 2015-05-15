@@ -2,6 +2,7 @@ package org.gradle.api.plugins.gaelyk.util
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.GroovyBasePlugin
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -89,10 +90,9 @@ out.print("""
     }
 
 	private org.gradle.api.artifacts.Configuration buildClasspath() {
-		Project project = ProjectBuilder.builder().build()
-		GroovyBasePlugin groovyBasePlugin = new GroovyBasePlugin()
-		groovyBasePlugin.apply(project)
-		project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
+        Project project = ProjectBuilder.builder().build()
+        project.apply plugin: 'groovy'
+        project.configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
 	}
     
 }

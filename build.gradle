@@ -5,8 +5,9 @@ apply plugin: 'nexus'
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
+
 group = 'org.gradle.api.plugins'
-version = '0.6'
+version = '0.7.0-SNAPSHOT'
 
 
 buildscript {
@@ -29,13 +30,14 @@ dependencies {
     compile localGroovy
     compile gradleApi()
 
-    compile 'com.google.appengine:gradle-appengine-plugin:1.9.19'
+    compile 'com.google.appengine:gradle-appengine-plugin:1.9.20'
     compile 'io.github.kdabir.directree:directree:0.2', {
         exclude group:'org.codehaus.groovy'
     }
 
     File localGroovyJar     =  localGroovy.resolve().asList().first()
     String spockQualifier   = '2.0'
+
     if (localGroovyJar.name.contains('-1.8')) {
         spockQualifier = '1.8'
     }

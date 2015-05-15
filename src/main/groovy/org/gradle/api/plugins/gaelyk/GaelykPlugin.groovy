@@ -191,7 +191,7 @@ class GaelykPlugin implements Plugin<Project> {
 
     private void configureAppEnginePlugin(Project project, GaelykPluginConvention pluginConvention) {
         project.plugins.withType(AppEnginePlugin) {
-            AppEnginePluginExtension appEnginePluginConvention = project.convention.getPlugin(AppEnginePluginExtension)
+            AppEnginePluginExtension appEnginePluginConvention = project.extensions.getByType(AppEnginePluginExtension)
 
             appEnginePluginConvention.with {
                 downloadSdk = true

@@ -8,6 +8,7 @@ import org.gradle.tooling.ProjectConnection
 import org.gradle.tooling.model.GradleProject
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
+import spock.lang.Ignore
 import spock.lang.Specification
 import static org.gradle.api.plugins.gaelyk.GaelykPlugin.*
 

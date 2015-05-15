@@ -16,6 +16,7 @@
 package org.gradle.api.plugins.gaelyk.tasks
 
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -30,9 +31,8 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
     def "Test precompile task"() {
         given:
             Project project = ProjectBuilder.builder().build()
-            GroovyBasePlugin groovyBasePlugin = new GroovyBasePlugin()
-            groovyBasePlugin.apply(project)
-            def configuration = project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
+            project.apply plugin: 'groovy'
+            def configuration = project.configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
 
             def dir = tmp.newFolder("precompile-task")
             def templatesSrcDir = new File(dir, '/templates')
@@ -61,9 +61,8 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
     def "Test fail precompilation"() {
         given:
             Project project = ProjectBuilder.builder().build()
-            GroovyBasePlugin groovyBasePlugin = new GroovyBasePlugin()
-            groovyBasePlugin.apply(project)
-            def configuration = project.configurations.getByName(GroovyBasePlugin.GROOVY_CONFIGURATION_NAME)
+            project.apply plugin: 'groovy'
+            def configuration = project.configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
 
             def dir = tmp.newFolder("precompile-task")
             def templatesSrcDir = new File(dir, '/templates')

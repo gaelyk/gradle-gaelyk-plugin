@@ -88,7 +88,7 @@ ${getTemplateAsScript(file.text, '', file, templatesRoot)}/* include#end   $rela
 				details << "${counter}".padRight(padding) + ": $line"
 				counter ++
 			}
-			details << '='.padRight(padding) + ':'  + (' ' * compilationError.cause.column) + '^'
+			details << '='.padRight(padding) + ':'  + (' ' * compilationError.cause.startColumn) + '^'
 			for(line in lines[compilationError.cause.line..detailEndLine]){
 				details << "${counter}".padRight(padding) + ": $line"
 				counter ++
