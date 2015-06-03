@@ -20,8 +20,8 @@ Gradle App Engine plugin doesn't handles these situations gracefully yet.
 
 This version is the first officially compatible with Gradle 2.x branch and it's new plugin mechanisms. 
 
-It contains couple of breaking changes - the name of generated GTPLs now escapes to `_gtpl_` instead of `$gtpl$`.
-This change is reflected in Gaelyk 2.2.0 and later which has to be used.
+**Breaking Change:** The name of generated GTPLs now escapes to `_gtpl_` instead of `$gtpl$`.
+This change is reflected in Gaelyk 2.2.0 and later which has to be used to be able to find the precompiled templates.
 
 
 ## Usage
