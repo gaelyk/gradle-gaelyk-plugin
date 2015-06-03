@@ -2,7 +2,7 @@
 
 ![Gaelyk Logo](http://d.hatena.ne.jp/images/keyword/283651.png)
 
-The plugin provides tasks for managing [Gaelyk](http://gaelyk.appspot.com/) projects in any given Gradle build. It applies
+The plugin provides tasks for managing [Gaelyk](http://www.gaelyk.org/) projects in any given Gradle build. It applies
 [Gradle App Engine plugin](https://github.com/GoogleCloudPlatform/gradle-appengine-plugin) and
 [Groovy plugin](http://www.gradle.org/docs/current/userguide/groovy_plugin.html) to the project.
 Finally it adds some Gaelyk specific tasks.
@@ -14,11 +14,30 @@ synchronized autmoatically for the websites. The plugin does not support synchro
 Gradle App Engine plugin doesn't handles these situations gracefully yet.
 
 
+## Release Notes
+
+### 0.7.0
+
+This version is the first officially compatible with Gradle 2.x branch and it's new plugin mechanisms. 
+
+It contains couple of breaking changes - the name of generated GTPLs now escapes to `_gtpl_` instead of `$gtpl$`.
+This change is reflected in Gaelyk 2.2.0 and later which has to be used.
+
+
 ## Usage
 
+### Gradle 2.1 and Later
+To use the Gaelyk plugin, apply the plugin to your build script:
+```
+plugins {
+  id "org.gaelyk" version "0.7.0"
+}
+```
+
+### Before Gradle 2.1
 To use the Gaelyk plugin, apply the plugin to your build script:
 
-    apply plugin: 'gaelyk'
+    apply plugin: 'org.gaelyk'
 
 The plugin JAR needs to be defined in the classpath of your build script. It is directly available on
 [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22org.gradle.api.plugins%22%20AND%20a%3A%22gradle-gaelyk-plugin%22).
@@ -27,12 +46,11 @@ it from Maven Central:
 
     buildscript {
         repositories {
-            jcenter()
             mavenCentral()
         }
 
         dependencies {
-            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.6'
+            classpath 'org.gradle.api.plugins:gradle-gaelyk-plugin:0.7'
         }
     }
 
@@ -54,8 +72,8 @@ To be able to develop a Gaelyk application you also need to add a `compile` depe
 section of your build might look like this:
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:2.2.2'
-        gaeSdk "com.google.appengine:appengine-java-sdk:1.9.1"
+        compile 'org.codehaus.groovy:groovy-all:2.4.3'
+        appengineSdk "com.google.appengine:appengine-java-sdk:1.9.20"
         compile 'org.gaelyk:gaelyk:2.1'
     }
 

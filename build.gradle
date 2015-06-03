@@ -1,24 +1,27 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.0"
+    }
+}
+
+
 apply plugin: 'groovy'
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-apply plugin: 'nexus'
+ apply plugin: 'nexus'
+apply plugin: "com.gradle.plugin-publish"
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
 group = 'org.gradle.api.plugins'
-version = '0.7.0-SNAPSHOT'
-
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
-    }
-}
+version = '0.7.0'
 
 repositories {
     jcenter()
@@ -104,6 +107,20 @@ modifyPom {
                 id 'erdi'
                 name 'Marcin Erdmann'
             }
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/gaelyk/gradle-gaelyk-plugin'
+    vcsUrl = 'https://github.com/gaelyk/gradle-gaelyk-plugin'
+    description = 'Gaelyk Plugin'
+    tags = ['gaelyk', 'appengine', 'cloud', 'gae']
+
+    plugins {
+        gaelykPlugin {
+            id = 'org.gaelyk'
+            displayName = 'Gaelyk Plugin'
         }
     }
 }

@@ -115,7 +115,7 @@ class GaelykPlugin implements Plugin<Project> {
             convertTemplateToScript.conventionMapping.map("targetCompatibility") { groovyCompileTask.getTargetCompatibility() }
             convertTemplateToScript.conventionMapping.map("destinationDir") { convertTemplateToScript.getStageDir() }
             convertTemplateToScript.conventionMapping.map("templateExtension") { pluginConvention.getTemplateExtension() }
-            convertTemplateToScript.conventionMapping.map("source") { 
+            convertTemplateToScript.conventionMapping.map("source") {
                 project.fileTree(getWarConvention(project).webAppDir).matching {
                     include "**/*." + convertTemplateToScript.getTemplateExtension()
                 } 
