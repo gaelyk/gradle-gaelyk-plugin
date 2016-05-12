@@ -17,11 +17,11 @@ apply plugin: 'groovy'
  apply plugin: 'nexus'
 apply plugin: "com.gradle.plugin-publish"
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 group = 'org.gradle.api.plugins'
-version = '0.7.0'
+version = '0.7.1'
 
 repositories {
     jcenter()
@@ -33,7 +33,7 @@ dependencies {
     compile localGroovy
     compile gradleApi()
 
-    compile 'com.google.appengine:gradle-appengine-plugin:1.9.20'
+    compile 'com.google.appengine:gradle-appengine-plugin:1.9.34'
     compile 'io.github.kdabir.directree:directree:0.2', {
         exclude group:'org.codehaus.groovy'
     }
@@ -63,7 +63,7 @@ jar {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.4'
+    gradleVersion = '2.13'
 }
 
 modifyPom {

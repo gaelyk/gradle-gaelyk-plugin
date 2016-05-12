@@ -54,8 +54,8 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
             task.compile()
 
         then:
-            new File(task.destinationDir, '$gtpl$datetime.groovy').exists()
-            new File(task.destinationDir, 'pkg/$gtpl$datetime.groovy').exists()
+            new File(task.destinationDir, '_gtpl_datetime.groovy').exists()
+            new File(task.destinationDir, 'pkg/_gtpl_datetime.groovy').exists()
     }
     
     def "Test fail precompilation"() {
@@ -104,7 +104,7 @@ class ConvertTemplateToScriptTaskSpec extends Specification {
             def info =  task.getTemplateScriptInfo('/xyz/template.gtpl')
         expect:
             info.dir == 'xyz'
-            info.file == '$gtpl$template.groovy'
+            info.file == '_gtpl_template.groovy'
     }
     
     def "Dir to pkg"() {
