@@ -8,13 +8,13 @@ buildscript {
 
     dependencies {
         classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7'
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.0"
+        classpath "com.gradle.publish:plugin-publish-plugin:0.9.4"
     }
 }
 
 
 apply plugin: 'groovy'
- apply plugin: 'nexus'
+apply plugin: 'nexus'
 apply plugin: "com.gradle.plugin-publish"
 
 sourceCompatibility = 1.7
@@ -44,7 +44,7 @@ dependencies {
     if (localGroovyJar.name.contains('-1.8')) {
         spockQualifier = '1.8'
     }
-    
+
     testCompile "org.spockframework:spock-core:0.7-groovy-${spockQualifier}", {
         exclude group:'org.codehaus.groovy'
     }
