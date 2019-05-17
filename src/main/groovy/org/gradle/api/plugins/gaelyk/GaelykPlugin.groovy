@@ -62,7 +62,7 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         
         configureConvertTemplatesToScript(project, gaelykPluginConvention)
-        // configureGaelykSynchronizeResources(project)
+        configureGaelykSynchronizeResources(project)
         configureGaelykPrecompileTemplate(project, gaelykPluginConvention)
         //configureAppEnginePlugin(project, gaelykPluginConvention)
 
