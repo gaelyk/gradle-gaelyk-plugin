@@ -21,7 +21,7 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 group = 'org.gradle.api.plugins'
-version = '0.7.1'
+version = '2.0.0'
 
 repositories {
     jcenter()
@@ -33,7 +33,7 @@ dependencies {
     compile localGroovy
     compile gradleApi()
 
-    compile 'com.google.appengine:gradle-appengine-plugin:1.9.34'
+    compile 'com.google.cloud.tools:appengine-gradle-plugin:2.0.1'
     compile 'io.github.kdabir.directree:directree:0.2', {
         exclude group:'org.codehaus.groovy'
     }
@@ -62,8 +62,8 @@ jar {
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+wrapper {
+    gradleVersion = '4.10.3'
 }
 
 modifyPom {

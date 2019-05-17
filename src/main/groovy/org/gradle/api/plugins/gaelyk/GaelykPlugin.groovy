@@ -15,8 +15,6 @@
  */
 package org.gradle.api.plugins.gaelyk
 
-import com.google.appengine.task.ExplodeAppTask
-
 import static org.gradle.api.plugins.WarPlugin.WAR_TASK_NAME
 
 import org.gradle.api.Plugin
@@ -29,9 +27,9 @@ import org.gradle.api.plugins.gaelyk.template.GaelykFileCreator
 import org.gradle.api.plugins.gaelyk.template.GaelykViewCreator
 import org.gradle.api.tasks.compile.GroovyCompile
 
-import com.google.appengine.AppEnginePlugin
-import com.google.appengine.AppEnginePluginExtension
-import com.google.appengine.task.RunTask
+import com.google.cloud.tools.gradle.appengine.standard.AppEngineStandardPlugin
+import com.google.cloud.tools.gradle.appengine.standard.DevAppServerRunTask
+import com.google.cloud.tools.gradle.appengine.standard.ExplodeWarTask
 
 /**
  * <p>A {@link org.gradle.api.Plugin} that provides tasks for managing Gaelyk projects.</p>
@@ -55,7 +53,7 @@ class GaelykPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.plugins.apply(GroovyPlugin)
-        project.plugins.apply(AppEnginePlugin)
+        project.plugins.apply(AppEngineStandardPlugin)
 
         GaelykPluginConvention gaelykPluginConvention = new GaelykPluginConvention()
         project.convention.plugins.gaelyk = gaelykPluginConvention
@@ -64,9 +62,9 @@ class GaelykPlugin implements Plugin<Project> {
         configureGaelykCreateViewTask(project)
         
         configureConvertTemplatesToScript(project, gaelykPluginConvention)
-        configureGaelykSynchronizeResources(project)
+        // configureGaelykSynchronizeResources(project)
         configureGaelykPrecompileTemplate(project, gaelykPluginConvention)
-        configureAppEnginePlugin(project, gaelykPluginConvention)
+        //configureAppEnginePlugin(project, gaelykPluginConvention)
 
 
         
@@ -130,8 +128,8 @@ class GaelykPlugin implements Plugin<Project> {
     }
 
     private void configureGaelykSynchronizeResources(final Project project) {
-        ExplodeAppTask explode = project.tasks.findByName(AppEnginePlugin.APPENGINE_EXPLODE_WAR)
-        RunTask run = project.tasks.findByName(AppEnginePlugin.APPENGINE_RUN)
+        ExplodeWarTask explode = project.tasks.findByName(AppEngineStandardPlugin.EXPLODE_WAR_TASK_NAME)
+        DevAppServerRunTask run = project.tasks.findByName(AppEngineStandardPlugin.RUN_TASK_NAME)
 
         GaelykSynchronizeResourcesTask syncTask = project.tasks.create(GAELYK_SYNCHRONIZE_RESOURCES, GaelykSynchronizeResourcesTask)
         syncTask.description = "Synchronizes changes in source directory to the exploded app directory for live reload as well as the generated data back to project root into data-backup directory"
@@ -185,11 +183,11 @@ class GaelykPlugin implements Plugin<Project> {
     }
 
     private def gaeRunIsInGraph(Project project) {
-        RunTask runTask = project.tasks.findByName(AppEnginePlugin.APPENGINE_RUN)
+        DevAppServerRunTask runTask = project.tasks.findByName(AppEngineStandardPlugin.RUN_TASK_NAME)
         project.gradle.taskGraph.hasTask(runTask)
     }
 
-    private void configureAppEnginePlugin(Project project, GaelykPluginConvention pluginConvention) {
+/*    private void configureAppEnginePlugin(Project project, GaelykPluginConvention pluginConvention) {
         project.plugins.withType(AppEnginePlugin) {
             AppEnginePluginExtension appEnginePluginConvention = project.extensions.getByType(AppEnginePluginExtension)
 
@@ -197,6 +195,6 @@ class GaelykPlugin implements Plugin<Project> {
                 downloadSdk = true
             }
         }
-    }
+    }*/
 
 }

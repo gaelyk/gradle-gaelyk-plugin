@@ -1,7 +1,7 @@
 package org.gradle.api.plugins.gaelyk.tasks
 
-import com.google.appengine.AppEnginePlugin
-import com.google.appengine.task.ExplodeAppTask
+import com.google.cloud.tools.gradle.appengine.standard.AppEngineStandardPlugin
+import com.google.cloud.tools.gradle.appengine.standard.ExplodeWarTask
 import directree.Synchronizer
 import org.gradle.api.DefaultTask
 import org.gradle.api.plugins.WarPluginConvention
@@ -14,14 +14,7 @@ class GaelykSynchronizeResourcesTask extends DefaultTask {
 
     @TaskAction
     void startSync() {
-        ExplodeAppTask explodeTask = project.tasks.getByName(AppEnginePlugin.APPENGINE_EXPLODE_WAR)
-
-        if(explodeTask.getArchive().name.endsWith(".ear")) {
-            project.logger.error("Gaelyk plugin cannot currently synchronize changes in ear projects. " +
-                    "If you need synchronize files you need to do it manually or add Gaelyk plugin to the module" +
-                    "and run it separely if possible.")
-            return
-        }
+        ExplodeWarTask explodeTask = project.tasks.getByName(AppEngineStandardPlugin.EXPLODE_WAR_TASK_NAME)
 
         final String appEngineGeneratedDir = "WEB-INF/appengine-generated/"
         final String appEngineGeneratedBkpDir = "data-backup"
