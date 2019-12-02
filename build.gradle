@@ -15,13 +15,13 @@ buildscript {
 
 apply plugin: 'groovy'
 apply plugin: 'nexus'
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'com.gradle.plugin-publish'
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 group = 'org.gradle.api.plugins'
-version = '2.0.0'
+version = '2.2.0'
 
 repositories {
     jcenter()
@@ -34,7 +34,7 @@ dependencies {
     compile gradleApi()
 
     compile 'com.google.cloud.tools:appengine-gradle-plugin:2.0.1'
-    compile 'io.github.kdabir.directree:directree:0.2', {
+    compile 'io.github.kdabir.directree:directree:0.3.2', {
         exclude group:'org.codehaus.groovy'
     }
 
